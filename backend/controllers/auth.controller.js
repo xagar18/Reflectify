@@ -1,6 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../config/db.js";
+import dotenev from "dotenv";
+
+dotenev.config()
 
 // register new user
 export const registerUser = async (req, res) => {
@@ -84,7 +87,7 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(
       { id: existingUser.id },
 
-      "shhhhh",
+      process.env.JWT_SSECRET,
       {
         expiresIn: "60h",
       }
