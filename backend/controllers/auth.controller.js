@@ -3,7 +3,9 @@ import crypto from "crypto";
 import dotenev from "dotenv";
 import jwt from "jsonwebtoken";
 import prisma from "../config/db.js";
+import mailService from "../services/mailservice.js";
 
+dotenev.config();
 dotenev.config();
 
 // register new user
@@ -42,15 +44,25 @@ export const registerUser = async (req, res) => {
       });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    console.log(verificationToken);
+
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
+        verificationToken,
       },
     });
     if (newUser) {
       console.log("User Registered Successfully.");
+
+      mailService(
+        newUser.email,
+        "Verify your account",
+        `Click here to verify your account http://127.0.0.1:4000/api/v1/user/verify/${verificationToken}`
+      );
       return res.status(200).json({
         success: true,
         message: "User Registered Successfully.",
@@ -241,6 +253,11 @@ export const forgotPassword = async (req, res) => {
       },
     });
     console.log("after save");
+    mailService(
+      userSave.email,
+      "Reset Your Password",
+      `Click here to reset your password http://127.0.0.1:4000/api/v1/user/res/${randomToken}`
+    );
 
     if (!userSave) {
       return res.status(404).json({
@@ -316,4 +333,37 @@ export const resetPassword = async (req, res) => {
       message: "Server error",
     });
   }
+};
+
+// verification
+export const verifyUser = async (req, res) => {
+  const { token } = req.params;
+
+  if (!token) {
+    return res.status(400).json({
+      message: "Invalid token",
+    });
+  }
+
+  const user = await prisma.user.findFirst({
+    where: { verificationToken: token },
+  });
+
+  if (!user) {
+    return res.status(400).json({
+      message: "User not found or invalid token",
+    });
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isVerified: true,
+      verificationToken: null,
+    },
+  });
+
+  return res.status(200).json({
+    message: "Email verified successfully!",
+  });
 };
