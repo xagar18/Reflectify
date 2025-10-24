@@ -6,7 +6,6 @@ import prisma from "../config/db.js";
 import mailService from "../services/mailservice.js";
 
 dotenev.config();
-dotenev.config();
 
 // register new user
 export const registerUser = async (req, res) => {
@@ -142,7 +141,8 @@ export const loginUser = async (req, res) => {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production", // Only secure in production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Important for cross-origin
       maxAge: 24 * 60 * 60 * 1000,
     };
 

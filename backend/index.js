@@ -13,8 +13,9 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:4000", "http://localhost:5173"],
     methods: ["GET", "POST"],
+    credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -29,4 +30,3 @@ const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`app is running on ${port}`);
 });
-console.log(port);
