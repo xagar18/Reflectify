@@ -14,7 +14,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: [process.env.BACKEND_URL, process.env.FRONTEND_URL],
+    origin: [process.env.FRONTEND_URL],
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -24,7 +24,7 @@ app.use(
 app.use("/api/v1/user", useRouter);
 
 const __dirname = path.resolve();
-console.log("__dirname",__dirname);
+console.log("__dirname", __dirname);
 
 // Serve static assets in production
 if (process.env.NODE_ENV === "production") {
