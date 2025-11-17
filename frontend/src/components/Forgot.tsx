@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function Forgot() {
@@ -19,7 +20,12 @@ export default function Forgot() {
         { withCredentials: true }
       );
       console.log("output", response);
-    } catch (error) {}
+      toast.success("Password reset link sent to your email!");
+      navigate("/login");
+    } catch (error) {
+      console.error("There was an error!", error);
+      toast.error("Failed to send reset link. Please try again.");
+    }
   };
 
   return (

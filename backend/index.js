@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import path from "path";
 import useRouter from "./routes/auth.routes.js";
 
 dotenv.config();
@@ -13,7 +14,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["http://localhost:4000", "http://localhost:5173"],
+    origin: [process.env.BACKEND_URL, process.env.FRONTEND_URL],
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -21,6 +22,19 @@ app.use(
 );
 
 app.use("/api/v1/user", useRouter);
+
+const __dirname = path.resolve();
+console.log("__dirname",__dirname);
+
+// Serve static assets in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  // Catch-all route - use regex for Express 5+
+  app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  });
+}
 
 app.get("/", (req, res) => {
   res.send("Hello World");

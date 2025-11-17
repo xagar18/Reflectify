@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function VerifyAccount() {
@@ -13,11 +14,12 @@ export default function VerifyAccount() {
         { withCredentials: true }
       );
       console.log("output", response);
-      alert("Account verified successfully!");
+      toast.success("Account verified successfully!");
+
       navigate("/login");
     } catch (error) {
       console.error("Verification failed", error);
-      alert("Verification failed. Please try again or contact support.");
+      toast.error("Account verification failed. Please try again.");
     }
   };
 

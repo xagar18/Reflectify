@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import toast from 'react-hot-toast';
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function ResetPassword() {
@@ -13,7 +14,7 @@ export default function ResetPassword() {
 
   const handleResetPassword = async () => {
     if (confirmPassword != password) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match!");
       return;
     }
     console.log(token);
@@ -26,11 +27,11 @@ export default function ResetPassword() {
       );
 
       console.log("output", response);
-      alert("Password updated successfully");
+      toast.success("Password reset successfully!");
       navigate("/login");
     } catch (error) {
       console.error("Reset failed", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Password reset failed. Please try again.");
     }
   };
 

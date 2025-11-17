@@ -1,13 +1,14 @@
 import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   console.log(email);
   console.log(password);
@@ -24,8 +25,13 @@ export default function SignUp() {
         },
         { withCredentials: true }
       );
+      toast.success("Registration successful!");
       console.log("output", response);
-    } catch (error) {}
+      navigate("/");
+    } catch (error) {
+      console.error("Registration failed", error);
+      toast.error("Registration failed. Please try again.");
+    }
   };
 
   return (
@@ -123,7 +129,7 @@ export default function SignUp() {
             Already have an Account?{" "}
             <span
               className="font-semibold text-indigo-400 hover:text-indigo-300"
-              onClick={()=>{
+              onClick={() => {
                 navigate("/login");
               }}
             >

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function SignIn() {
@@ -21,8 +22,13 @@ export default function SignIn() {
         },
         { withCredentials: true }
       );
+      toast.success("Login successful!");
       console.log("output", response);
-    } catch (error) {}
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed", error);
+      toast.error("Login failed. Please try again.");
+    }
   };
 
   return (
