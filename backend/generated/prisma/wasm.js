@@ -147,6 +147,10 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "debian-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -154,7 +158,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
+    "rootEnvPath": "../../.env",
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
@@ -164,6 +168,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -172,8 +177,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id                  String    @id @default(cuid())\n  name                String\n  phone               String?\n  email               String    @unique\n  password            String\n  isVerified          Boolean   @default(false)\n  verificationToken   String?\n  passwordResetToken  String?\n  passwordResetExpiry DateTime?\n  createdAt           DateTime  @default(now())\n  updatedAt           DateTime  @default(now())\n}\n",
-  "inlineSchemaHash": "dd2ab5943226760003afa0615e969115cd0accaa294a38962477e5db6f2357cc",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id                  String    @id @default(cuid())\n  name                String\n  phone               String?\n  email               String    @unique\n  password            String\n  isVerified          Boolean   @default(false)\n  verificationToken   String?\n  passwordResetToken  String?\n  passwordResetExpiry DateTime?\n  createdAt           DateTime  @default(now())\n  updatedAt           DateTime  @default(now())\n}\n",
+  "inlineSchemaHash": "4525511a47d7e4246d66ce09f4580270e894e56ed8979937cffd7faa695f1d17",
   "copyEngine": true
 }
 config.dirname = '/'
