@@ -33,15 +33,12 @@ console.log("__dirname", __dirname);
 // Serve static assets in production
 if (process.env.NODE_ENV === "production") {
   // Correct path: backend -> root -> frontend/dist
-  const frontendDistPath = path.join(__dirname, "../frontend/dist");
-  console.log("Frontend dist path:", frontendDistPath);
+   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  app.use(express.static(frontendDistPath));
-
-  // Catch-all route for SPA
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendDistPath, "index.html"));
-  });
+   // Catch-all route - use regex for Express 5+
+   app.get(/.*/, (req, res) => {
+     res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+   });
 }
 
 const port = process.env.PORT || 3000;
