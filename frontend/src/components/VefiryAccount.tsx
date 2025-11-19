@@ -10,7 +10,7 @@ export default function VerifyAccount() {
   const handleVerifyAccount = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/v1/user/verify/${token}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/verify/${token}`,
         { withCredentials: true }
       );
       console.log("output", response);

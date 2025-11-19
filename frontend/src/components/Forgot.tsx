@@ -13,7 +13,7 @@ export default function Forgot() {
   const handleForgot = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/v1/user/frgt",
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/frgt`,
         {
           email,
         },

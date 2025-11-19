@@ -17,7 +17,7 @@ export default function SignUp() {
   const handleRegister = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/v1/user/register",
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/register`,
         {
           name,
           email,
