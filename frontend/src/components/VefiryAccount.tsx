@@ -1,14 +1,19 @@
 import axios from "axios";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
 
 export default function VerifyAccount() {
+  const [loading, setLoading] = useState(false);
+
   const { token } = useParams();
 
   const navigate = useNavigate();
 
   const handleVerifyAccount = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/verify/${token}`,
         { withCredentials: true }
@@ -20,6 +25,8 @@ export default function VerifyAccount() {
     } catch (error) {
       console.error("Verification failed", error);
       toast.error("Account verification failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,7 +47,11 @@ export default function VerifyAccount() {
               onClick={handleVerifyAccount}
               className="mt-6 flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             >
-              Activate account
+              {loading ? (
+                <BeatLoader size={8} margin={6} color="white" />
+              ) : (
+                "Verify Account"
+              )}
             </button>
           </div>
           {/* </form> */}

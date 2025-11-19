@@ -2,9 +2,11 @@ import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
 
 export default function Forgot() {
   const [email, setEmail] = useState("");
+   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -12,6 +14,7 @@ export default function Forgot() {
 
   const handleForgot = async () => {
     try {
+      setLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/frgt`,
         {
@@ -25,6 +28,9 @@ export default function Forgot() {
     } catch (error) {
       console.error("There was an error!", error);
       toast.error("Failed to send reset link. Please try again.");
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -66,7 +72,11 @@ export default function Forgot() {
               onClick={handleForgot}
               className="mt-6 flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             >
-              Send reset link
+              {loading ? (
+                <BeatLoader size={8} margin={6} color="white" />
+              ) : (
+                "Send Reset Link"
+              )}
             </button>
           </div>
           {/* </form> */}

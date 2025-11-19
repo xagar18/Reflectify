@@ -2,11 +2,14 @@ import axios from "axios";
 import { useState } from "react";
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
 
 export default function ResetPassword() {
   const { token } = useParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -20,6 +23,7 @@ export default function ResetPassword() {
     console.log(token);
 
     try {
+      setLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/res/${token}`,
         { password },
@@ -32,6 +36,9 @@ export default function ResetPassword() {
     } catch (error) {
       console.error("Reset failed", error);
       toast.error("Password reset failed. Please try again.");
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -102,7 +109,11 @@ export default function ResetPassword() {
               onClick={handleResetPassword}
               className="mt-6 flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             >
-              Update password
+              {loading ? (
+                <BeatLoader size={8} margin={6} color="white" />
+              ) : (
+                "Reset Password"
+              )}
             </button>
           </div>
           {/* </form> */}

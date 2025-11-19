@@ -2,10 +2,12 @@ import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -14,6 +16,7 @@ export default function SignIn() {
 
   const handleLogin = async () => {
     try {
+      setLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/login`,
         {
@@ -28,6 +31,9 @@ export default function SignIn() {
     } catch (error) {
       console.error("Login failed", error);
       toast.error("Login failed. Please try again.");
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -103,7 +109,11 @@ export default function SignIn() {
               onClick={handleLogin}
               className="mt-6 flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             >
-              Sign in
+              {loading ? (
+                <BeatLoader size={8} margin={6} color="white" />
+              ) : (
+                "Sign In"
+              )}
             </button>
           </div>
           {/* </form> */}
