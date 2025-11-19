@@ -60,7 +60,7 @@ export const registerUser = async (req, res) => {
       mailService(
         newUser.email,
         "Verify your account",
-        `Click here to verify your account ${FRONTEND_URL}/verify-account/${verificationToken}`
+        `Click here to verify your account ${process.env.FRONTEND_URL}/verify-account/${verificationToken}`
       );
       return res.status(200).json({
         success: true,
@@ -256,7 +256,7 @@ export const forgotPassword = async (req, res) => {
     mailService(
       userSave.email,
       "Reset Your Password",
-      `Click here to reset your password ${FRONTEND_URL}/reset-password/${randomToken}`
+      `Click here to reset your password ${process.env.FRONTEND_URL}/reset-password/${randomToken}`
     );
 
     if (!userSave) {
