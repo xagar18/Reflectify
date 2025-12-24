@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { BeatLoader } from "react-spinners";
+import useStore from "../zustand/store";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { auth } = useStore();
 
   console.log(email);
   console.log(password);
@@ -26,13 +28,13 @@ export default function SignIn() {
         { withCredentials: true }
       );
       toast.success("Login successful!");
-      console.log("output", response);
+      console.log("output", response.data.user);
+      auth(response.data.user); // Update global state with user data
       navigate("/");
     } catch (error) {
       console.error("Login failed", error);
       toast.error("Login failed. Please try again.");
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
