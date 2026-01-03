@@ -6,6 +6,7 @@ interface AuthState {
   userData: any | null; // Stores user data or null if not authenticated
   isAuthenticated: boolean; // Boolean flag for authentication status
   auth: (data: any) => void; // Function to set user data and mark as authenticated
+  logout: () => void; // Function to log out user by clearing data and authentication flag
   getProfile: () => Promise<void>; // Function to fetch user profile from backend
 }
 
@@ -28,6 +29,20 @@ const useStore = create<AuthState>(set => ({
 
     // Debug log for user data (consider removing in production)
     console.log(response.data.user);
+  },
+  // Function to log out user by clearing user data and authentication flag
+  logout: async () => {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/logout`,
+      {},
+      { withCredentials: true } // Include cookies for authentication
+    );
+
+    // Clear user data and set authenticated to false
+    set({ userData: null, isAuthenticated: false });
+
+    // Debug log for logout response (consider removing in production)
+    console.log(response.data);
   },
 }));
 

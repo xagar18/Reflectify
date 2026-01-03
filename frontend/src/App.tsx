@@ -5,8 +5,8 @@ import "./App.css";
 import Forgot from "./components/Forgot";
 import SignIn from "./components/Login";
 import SignUp from "./components/Register";
-import ResetPassword from "./components/ResestPassword";
-import VerifyAccount from "./components/VefiryAccount";
+import ResetPassword from "./components/ResetPassword";
+import VerifyAccount from "./components/VerifyAccount";
 import Home from "./pages/Home";
 import useStore from "./zustand/store";
 
@@ -25,11 +25,11 @@ function App() {
       <Routes>
         <Route
           path="/login"
-          element={isAuthenticated ? <Home /> : <SignIn />}
+          element={!isAuthenticated ? <SignIn /> : <Navigate to="/" />}
         />
         <Route
           path="/register"
-          element={isAuthenticated ? <Home /> : <SignUp />}
+          element={!isAuthenticated ? <SignUp /> : <Navigate to="/" />}
         />
         <Route path="/forgot-password" element={<Forgot />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />

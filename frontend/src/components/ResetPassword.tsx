@@ -1,40 +1,42 @@
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { BeatLoader } from "react-spinners";
 
-// Forgot component handles password reset by sending a reset link to the user's email
-export default function Forgot() {
-  // State variables to manage email input and loading state
-  const [email, setEmail] = useState("");
+export default function ResetPassword() {
+  const { token } = useParams();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // Debug log for email (consider removing in production)
-  console.log(email);
+  console.log(password);
 
-  // Function to handle forgot password process
-  const handleForgot = async () => {
+  const handleResetPassword = async () => {
+    if (confirmPassword != password) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+    console.log(token);
+
     try {
-      setLoading(true); // Set loading to true to show spinner
-      // Make POST request to backend forgot password endpoint with email
+      setLoading(true);
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/frgt`,
-        {
-          email,
-        },
-        { withCredentials: true } // Include cookies for authentication
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/res/${token}`,
+        { password },
+        { withCredentials: true }
       );
-      console.log("output", response); // Log response for debugging
-      toast.success("Password reset link sent to your email!"); // Show success notification
-      navigate("/login"); // Redirect to login page after sending reset link
+
+      console.log("output", response);
+      toast.success("Password reset successfully!");
+      navigate("/login");
     } catch (error) {
-      console.error("There was an error!", error); // Log error for debugging
-      toast.error("Failed to send reset link. Please try again."); // Show error notification
+      console.error("Reset failed", error);
+      toast.error("Password reset failed. Please try again.");
     } finally {
-      setLoading(false); // Reset loading state regardless of success or failure
+      setLoading(false);
     }
   };
 
@@ -56,12 +58,12 @@ export default function Forgot() {
 
         <div className="relative z-10 space-y-6">
           <h2 className="text-4xl leading-tight font-bold text-white">
-            Don't worry,
+            Almost there!
             <br />
-            we've got you covered
+            Create a new password
           </h2>
           <p className="max-w-md text-lg text-emerald-100">
-            Enter your email and we'll send you a link to reset your password.
+            Choose a strong password to keep your reflections safe and secure.
           </p>
         </div>
 
@@ -82,45 +84,64 @@ export default function Forgot() {
 
           <div className="mb-8">
             <h2 className="mb-2 text-3xl font-bold text-white">
-              Forgot password?
+              Reset password
             </h2>
-            <p className="text-gray-400">
-              No worries, we'll send you reset instructions
-            </p>
+            <p className="text-gray-400">Enter your new password below</p>
           </div>
 
           <div className="space-y-4">
-            {/* Email input */}
+            {/* Password input */}
             <div>
               <label
-                htmlFor="email"
+                htmlFor="password"
                 className="mb-1.5 block text-sm font-medium text-gray-300"
               >
-                Email
+                New Password
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
+                id="password"
+                name="password"
+                type="password"
                 required
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                autoComplete="email"
-                placeholder="you@example.com"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="••••••••"
+                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-white transition-colors outline-none placeholder:text-gray-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+
+            {/* Confirm Password input */}
+            <div>
+              <label
+                htmlFor="confirm-password"
+                className="mb-1.5 block text-sm font-medium text-gray-300"
+              >
+                Confirm Password
+              </label>
+              <input
+                id="confirm-password"
+                name="confirm-password"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="••••••••"
                 className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-white transition-colors outline-none placeholder:text-gray-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 
             {/* Submit button */}
             <button
-              onClick={handleForgot}
+              onClick={handleResetPassword}
               disabled={loading}
               className="mt-2 w-full rounded-xl bg-emerald-600 py-3.5 font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <BeatLoader size={8} margin={6} color="white" />
               ) : (
-                "Send Reset Link"
+                "Reset Password"
               )}
             </button>
           </div>

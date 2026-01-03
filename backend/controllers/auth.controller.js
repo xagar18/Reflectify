@@ -108,7 +108,7 @@ export const loginUser = async (req, res) => {
   try {
     console.log("try");
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
       where: { email },
     });
     if (!existingUser) {

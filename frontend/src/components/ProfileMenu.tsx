@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import useStore from "../zustand/store";
 
 /* ---------- Profile Menu ---------- */
 
@@ -6,20 +7,22 @@ export function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
+  const { userData, logout } = useStore();
+
+  const LogoutCalled = () => {
+    logout();
+  };
+
   // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -27,26 +30,27 @@ export function ProfileMenu() {
       {/* Profile button */}
       <button
         onClick={() => setOpen(prev => !prev)}
-        className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-700 transition text-sm"
+        className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm transition hover:bg-gray-700"
       >
-        <div className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
-          A
+        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+          P
         </div>
-        <span className="flex-1 text-left truncate">
-          Archi Gupta
-        </span>
+        <span className="flex-1 truncate text-left">Profile</span>
       </button>
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute bottom-full mb-2 left-0 w-full bg-gray-800 border border-gray-700 rounded shadow-lg overflow-hidden z-50">
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-700 transition">
+        <div className="absolute bottom-full left-0 z-50 mb-2 w-full overflow-hidden rounded border border-gray-700 bg-gray-800 shadow-lg">
+          {/* <button className="w-full px-4 py-2 text-left text-sm transition hover:bg-gray-700">
             Settings
           </button>
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-700 transition">
+          <button className="w-full px-4 py-2 text-left text-sm transition hover:bg-gray-700">
             Help
-          </button>
-          <button className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700 transition">
+          </button> */}
+          <button
+            onClick={LogoutCalled}
+            className="w-full px-4 py-2 text-left text-sm text-red-400 transition hover:bg-gray-700"
+          >
             Logout
           </button>
         </div>
