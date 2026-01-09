@@ -9,8 +9,11 @@ export default function Forgot() {
   // State variables to manage email input and loading state
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const navigate = useNavigate();
+
+  const emailRegex = /^[^\s@]+@gmail\.com$/;
 
   // Debug log for email (consider removing in production)
   console.log(email);
@@ -104,17 +107,28 @@ export default function Forgot() {
                 type="email"
                 required
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => {
+                  const value = e.target.value;
+                  setEmail(value);
+                  if (value && !emailRegex.test(value)) {
+                    setEmailError("Email must be a valid Gmail address.");
+                  } else {
+                    setEmailError("");
+                  }
+                }}
                 autoComplete="email"
                 placeholder="you@example.com"
                 className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-white transition-colors outline-none placeholder:text-gray-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
+              {emailError && (
+                <p className="mt-1 text-sm text-red-500">{emailError}</p>
+              )}
             </div>
 
             {/* Submit button */}
             <button
               onClick={handleForgot}
-              disabled={loading}
+              disabled={loading || !!emailError || !email}
               className="mt-2 w-full rounded-xl bg-emerald-600 py-3.5 font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
