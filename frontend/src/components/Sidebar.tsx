@@ -1,4 +1,6 @@
+import { PanelRight } from "lucide-react";
 import { useState } from "react";
+import useStore from "../zustand/store";
 import ChatRow from "./ChatRow";
 import { ProfileMenu } from "./ProfileMenu";
 
@@ -30,6 +32,7 @@ function Sidebar({
 }: SidebarProps) {
   const [search, setSearch] = useState("");
   const [showChats, setShowChats] = useState(true);
+  const { theme } = useStore();
 
   const filteredChats = chats.filter(chat =>
     chat.title.toLowerCase().includes(search.toLowerCase())
@@ -45,30 +48,60 @@ function Sidebar({
         />
       )}
       <aside
-        className={`flex h-screen flex-col border-r border-gray-700 bg-gray-900 transition-all duration-300 ${isOpen ? "w-64" : "w-0 overflow-hidden"} fixed z-50 md:relative md:z-auto`}
+        className={`flex h-screen flex-col transition-all duration-300 ${isOpen ? "w-64 sm:w-72 md:w-68" : "w-0 overflow-hidden"} fixed z-50 md:relative md:z-auto ${
+          theme === "dark"
+            ? "border-r border-gray-700 bg-gray-900"
+            : "border-r border-gray-200 bg-white"
+        }`}
       >
         {/* ===== HEADER (FIXED) ===== */}
-        <div className="shrink-0 space-y-3 border-b border-gray-700 p-4">
+        <div
+          className={`shrink-0 space-y-3 p-4 ${
+            theme === "dark"
+              ? "border-b border-gray-700"
+              : "border-b border-gray-200"
+          }`}
+        >
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Reflectify 🌱</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🌱</span>
+              <h2
+                className={`text-lg font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+              ></h2>
+            </div>
 
-            <div className="group relative">
-              <button
-                onClick={onToggle}
-                className="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white"
-              >
-                ‹
-              </button>
-
-              <div className="absolute top-1/2 left-full ml-2 -translate-y-1/2 rounded bg-black px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100">
-                Close sidebar
+            <div className="flex items-center gap-1">
+              <div className="group relative">
+                <button
+                  onClick={onToggle}
+                  className={`flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
+                    theme === "dark"
+                      ? "text-gray-400 hover:bg-gray-700 hover:text-white"
+                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                  }`}
+                >
+                  <PanelRight />
+                </button>
+                <div
+                  className={`absolute top-full left-1/2 mt-2 -translate-x-1/2 rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 ${
+                    theme === "dark"
+                      ? "bg-black text-white"
+                      : "bg-gray-800 text-white"
+                  }`}
+                >
+                  Close sidebar
+                </div>
               </div>
             </div>
           </div>
 
           <button
             onClick={onNewChat}
-            className="w-full rounded bg-gray-700 px-3 py-2 transition hover:bg-gray-600"
+            className={`w-full rounded px-3 py-2 transition ${
+              theme === "dark"
+                ? "bg-gray-700 text-white hover:bg-gray-600"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
             + New Reflection
           </button>
@@ -78,14 +111,22 @@ function Sidebar({
             placeholder="Search chats"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full rounded bg-gray-800 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 ${
+              theme === "dark"
+                ? "bg-gray-800 text-white placeholder-gray-400"
+                : "border border-gray-200 bg-gray-100 text-gray-900 placeholder-gray-500"
+            }`}
           />
         </div>
 
         {/* ===== CHAT LIST (ONLY THIS SCROLLS) ===== */}
         <div className="flex flex-1 flex-col overflow-hidden">
           <div
-            className="flex shrink-0 cursor-pointer items-center justify-between px-4 py-2 text-sm text-gray-400 hover:text-white"
+            className={`flex shrink-0 cursor-pointer items-center justify-between px-4 py-2 text-sm transition-colors ${
+              theme === "dark"
+                ? "text-gray-400 hover:text-white"
+                : "text-gray-500 hover:text-gray-900"
+            }`}
             onClick={() => setShowChats(!showChats)}
           >
             <span>Your chats</span>
@@ -93,9 +134,17 @@ function Sidebar({
           </div>
 
           {showChats && (
-            <div className="flex-1 space-y-1 overflow-y-auto px-2">
+            <div
+              className={`flex-1 space-y-1 overflow-y-auto px-2 ${
+                theme === "dark"
+                  ? "scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800/50 hover:scrollbar-thumb-gray-500"
+                  : "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
+              }`}
+            >
               {filteredChats.length === 0 ? (
-                <div className="px-2 py-4 text-sm text-gray-500">
+                <div
+                  className={`px-2 py-4 text-sm ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}
+                >
                   No chats yet
                 </div>
               ) : (
@@ -107,6 +156,7 @@ function Sidebar({
                     onSelect={() => onSelectChat(chat.id)}
                     onRename={onRenameChat}
                     onDelete={onDeleteChat}
+                    theme={theme}
                   />
                 ))
               )}
@@ -115,7 +165,13 @@ function Sidebar({
         </div>
 
         {/* ===== PROFILE (FIXED BOTTOM) ===== */}
-        <div className="shrink-0 border-t border-gray-700 p-3">
+        <div
+          className={`shrink-0 p-3 ${
+            theme === "dark"
+              ? "border-t border-gray-700"
+              : "border-t border-gray-200"
+          }`}
+        >
           <ProfileMenu />
         </div>
       </aside>
