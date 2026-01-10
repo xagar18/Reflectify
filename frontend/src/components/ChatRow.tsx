@@ -1,4 +1,6 @@
+import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
+import type { Theme } from "../zustand/store";
 
 /* ---------- Types ---------- */
 
@@ -13,6 +15,7 @@ type ChatRowProps = {
   onSelect: () => void;
   onRename: (id: number, title: string) => void;
   onDelete: (id: number) => void;
+  theme?: Theme;
 };
 
 /* ---------- Chat Row ---------- */
@@ -23,6 +26,7 @@ export default function ChatRow({
   onSelect,
   onRename,
   onDelete,
+  theme = "dark",
 }: ChatRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(chat.title);
@@ -36,8 +40,15 @@ export default function ChatRow({
   return (
     <div
       onClick={!isEditing ? onSelect : undefined}
-      className={`group flex items-center justify-between px-3 py-2 rounded cursor-pointer
-        ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`}
+      className={`group flex cursor-pointer items-center justify-between rounded px-3 py-2 transition-colors ${
+        theme === "dark"
+          ? isActive
+            ? "bg-gray-700"
+            : "hover:bg-gray-700"
+          : isActive
+            ? "bg-blue-50 text-blue-700"
+            : "hover:bg-gray-100"
+      }`}
     >
       {/* Title / Rename input */}
       {isEditing ? (
@@ -47,24 +58,38 @@ export default function ChatRow({
           onBlur={save}
           onKeyDown={e => e.key === "Enter" && save()}
           autoFocus
-          className="bg-gray-800 text-sm px-2 py-1 rounded w-full outline-none"
+          className={`w-full rounded px-2 py-1 text-sm outline-none ${
+            theme === "dark"
+              ? "bg-gray-800 text-white"
+              : "border border-gray-300 bg-white text-gray-900"
+          }`}
         />
       ) : (
-        <span className="truncate text-sm">{chat.title}</span>
+        <span
+          className={`truncate text-sm ${
+            theme === "dark" ? "text-gray-200" : "text-gray-700"
+          }`}
+        >
+          {chat.title}
+        </span>
       )}
 
       {/* Hover actions */}
       {!isEditing && (
-        <div className="flex gap-2 opacity-0 group-hover:opacity-100">
+        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             onClick={e => {
               e.stopPropagation();
               setIsEditing(true);
             }}
-            className="text-xs text-gray-400 hover:text-white"
+            className={`rounded p-1 transition-colors ${
+              theme === "dark"
+                ? "text-gray-400 hover:bg-gray-600 hover:text-white"
+                : "text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+            }`}
             aria-label="Rename chat"
           >
-            ✏️
+            <Pencil className="h-3.5 w-3.5" />
           </button>
 
           <button
@@ -72,10 +97,14 @@ export default function ChatRow({
               e.stopPropagation();
               onDelete(chat.id);
             }}
-            className="text-xs text-red-400 hover:text-red-300"
+            className={`rounded p-1 transition-colors ${
+              theme === "dark"
+                ? "text-red-400 hover:bg-red-500/20 hover:text-red-300"
+                : "text-red-400 hover:bg-red-50 hover:text-red-500"
+            }`}
             aria-label="Delete chat"
           >
-            🗑
+            <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
