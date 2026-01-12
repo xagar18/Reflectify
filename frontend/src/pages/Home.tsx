@@ -284,7 +284,7 @@ function Home() {
           </div>
           {/* Logo + Reflectify text - always visible */}
           <div className="flex items-center gap-2">
-            <span className="text-lg">🌱</span>
+            <span className="text-lg"></span>
             <span
               className={`text-lg font-semibold ${
                 theme === "dark" ? "text-white" : "text-gray-900"
