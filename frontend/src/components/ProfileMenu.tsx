@@ -30,6 +30,8 @@ export function ProfileMenu() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  console.log();
+
 
   return (
     <div ref={menuRef} className="relative">
@@ -43,7 +45,7 @@ export function ProfileMenu() {
         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
           {userData?.name ? userData.name.charAt(0).toUpperCase() : "P"}
         </div>
-        <span className="flex-1 truncate text-left">Profile</span>
+        <span className="flex-1 truncate text-left">{userData?.name ? userData.name.charAt(0).toUpperCase() + userData.name.slice(1) : ''}</span>
       </button>
 
       {/* Dropdown */}

@@ -18,7 +18,7 @@ export default function SignUp() {
 
   const navigate = useNavigate();
 
-  const emailRegex = /^[^\s@]+@gmail\.com$/;
+  const emailRegex = /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@gmail\.com$/;
 
   // Password validation checks
   const hasLower = /[a-z]/.test(password);
@@ -39,7 +39,9 @@ export default function SignUp() {
     const value = e.target.value;
     setEmail(value);
     if (value && !emailRegex.test(value)) {
-      setEmailError("Email must be a valid Gmail address.");
+      setEmailError(
+        "Sorry, only letters (a-z), numbers (0-9), and periods (.) are allowed."
+      );
     } else {
       setEmailError("");
     }

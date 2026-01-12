@@ -19,14 +19,16 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
 
-  const emailRegex = /^[^\s@]+@gmail\.com$/;
+  const emailRegex = /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@gmail\.com$/;
 
   // Function to handle email change with validation
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
     if (value && !emailRegex.test(value)) {
-      setEmailError("Email must be a valid Gmail address.");
+      setEmailError(
+        "Sorry, only letters (a-z), numbers (0-9), and periods (.) are allowed."
+      );
     } else {
       setEmailError("");
     }
@@ -49,13 +51,15 @@ export default function SignIn() {
         },
         { withCredentials: true } // Include cookies for authentication
       );
-      toast.success("Login successful!"); // Show success notification
+      toast.success(response.data.message); // Show success notification
       console.log("output", response.data.user); // Log user data for debugging
       auth(response.data.user); // Update global state with logged-in user data
       navigate("/"); // Redirect to home page after successful login
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed", error); // Log error for debugging
-      toast.error("Login failed. Please try again."); // Show error notification
+      toast.error(
+        error.response?.data?.message || "Login failed. Please try again."
+      ); // Show error notification
     } finally {
       setLoading(false); // Reset loading state regardless of success or failure
     }

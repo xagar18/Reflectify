@@ -111,12 +111,22 @@ export const loginUser = async (req, res) => {
     const existingUser = await prisma.user.findFirst({
       where: { email },
     });
+
     if (!existingUser) {
       return res.status(400).json({
         success: false,
         message: "User doesn't exist, please register.",
       });
     }
+
+    // checking user is verified or not
+    if (!existingUser.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: "Please verify your account.",
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, existingUser.password);
     if (!isMatch) {
       return res.status(401).json({
