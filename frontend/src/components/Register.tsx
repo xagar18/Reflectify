@@ -1,8 +1,10 @@
+import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { BeatLoader } from "react-spinners";
+import useStore from "../zustand/store";
 
 // SignUp component handles user registration by collecting name, email, and password
 export default function SignUp() {
@@ -17,6 +19,30 @@ export default function SignUp() {
   const [emailError, setEmailError] = useState("");
 
   const navigate = useNavigate();
+  const { auth } = useStore();
+
+  const googleLogin = useGoogleLogin({
+    scope: "openid email profile",
+    onSuccess: async tokenResponse => {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/google-auth`,
+          { token: tokenResponse.access_token },
+          { withCredentials: true }
+        );
+        toast.success("Signed up with Google!");
+        console.log("Google auth response", response.data);
+        auth(response.data.user);
+        navigate("/");
+      } catch (error) {
+        console.error("Google auth failed", error);
+        toast.error("Google authentication failed. Please try again.");
+      }
+    },
+    onError: () => {
+      toast.error("Google login failed. Please try again.");
+    },
+  });
 
   const emailRegex = /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@gmail\.com$/;
 
@@ -534,7 +560,10 @@ export default function SignUp() {
             {/* Social Auth Buttons */}
             <div className="mt-6 flex gap-3">
               {/* Google Auth Button */}
-              <button className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-lg hover:shadow-gray-400/30 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none active:translate-y-0 active:scale-[0.98]">
+              <button
+                onClick={() => googleLogin()}
+                className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-lg hover:shadow-gray-400/30 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none active:translate-y-0 active:scale-[0.98]"
+              >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
