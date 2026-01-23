@@ -1,12 +1,12 @@
+import { PanelRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Message } from "../components/ChatArea";
 import ChatArea from "../components/ChatArea";
 import MessageInput, { type AttachedFile } from "../components/MessageInput";
 import Settings from "../components/Settings";
 import Sidebar from "../components/Sidebar";
-import useStore from "../zustand/store";
-import { PanelRight } from "lucide-react";
 import { modelService } from "../services/modelService";
+import useStore from "../zustand/store";
 
 /* ================= TYPES ================= */
 
@@ -154,6 +154,7 @@ function Home() {
       text,
       sender: "user",
       attachments,
+      timestamp: new Date(),
     };
 
     setChats(prev =>
@@ -197,6 +198,7 @@ function Home() {
           id: Date.now() + 1,
           text: replyText,
           sender: "bot",
+          timestamp: new Date(),
         };
 
         setChats(prev =>
