@@ -5,7 +5,8 @@ import MessageInput, { type AttachedFile } from "../components/MessageInput";
 import Settings from "../components/Settings";
 import Sidebar from "../components/Sidebar";
 import useStore from "../zustand/store";
-import { PanelRight } from 'lucide-react';
+import { PanelRight } from "lucide-react";
+import { modelService } from "../services/modelService";
 
 /* ================= TYPES ================= */
 
@@ -30,24 +31,24 @@ function generateChatTitle(text: string): string {
     : "New Reflection";
 }
 
-// Reflectify’s emotional logic
-function getBotReply(userText: string): string {
-  const text = userText.toLowerCase();
+// Reflectify’s emotional logic - now handled by AI model
+// function getBotReply(userText: string): string {
+//   const text = userText.toLowerCase();
 
-  if (text.includes("stress") || text.includes("overwhelmed")) {
-    return "It sounds like things feel heavy right now. Let’s slow down together 🌿";
-  }
+//   if (text.includes("stress") || text.includes("overwhelmed")) {
+//     return "It sounds like things feel heavy right now. Let’s slow down together 🌿";
+//   }
 
-  if (text.includes("sad") || text.includes("lonely")) {
-    return "I’m really glad you shared this. You’re not alone here 💙";
-  }
+//   if (text.includes("sad") || text.includes("lonely")) {
+//     return "I’m really glad you shared this. You’re not alone here 💙";
+//   }
 
-  if (text.includes("happy") || text.includes("grateful")) {
-    return "That’s lovely to hear ✨ Want to share more?";
-  }
+//   if (text.includes("happy") || text.includes("grateful")) {
+//     return "That’s lovely to hear ✨ Want to share more?";
+//   }
 
-  return "Thank you for opening up. Would you like to explore this feeling a bit more?";
-}
+//   return "Thank you for opening up. Would you like to explore this feeling a bit more?";
+// }
 
 /* ================= APP ================= */
 
@@ -133,7 +134,7 @@ function Home() {
   };
 
   /* ========== SEND MESSAGE ========== */
-  const handleSend = (text: string, attachments?: AttachedFile[]) => {
+  const handleSend = async (text: string, attachments?: AttachedFile[]) => {
     let currentActiveChatId = activeChatId;
 
     // If no active chat, create one
@@ -175,9 +176,9 @@ function Home() {
     setTimeout(() => {
       setIsTyping(true);
 
-      setTimeout(() => {
+      setTimeout(async () => {
         // Generate contextual reply based on attachments
-        let replyText = getBotReply(text);
+        let replyText = await modelService.getReflection(text);
         if (attachments && attachments.length > 0) {
           const imageCount = attachments.filter(a => a.type === "image").length;
           const fileCount = attachments.length - imageCount;
