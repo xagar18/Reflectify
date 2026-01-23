@@ -256,6 +256,89 @@ export const googleAuth = async (req, res) => {
   }
 };
 
+// Github Auth
+export const githubRedirect = (req, res) => {
+  const url =
+    "https://github.com/login/oauth/authorize" +
+    `?client_id=${process.env.GITHUB_CLIENT_ID}` +
+    `&redirect_uri=${process.env.GITHUB_CALLBACK_URL}` +
+    "&scope=user:email";
+
+  res.redirect(url);
+};
+
+export const githubCallback = async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.status(400).json({ message: "Code missing" });
+
+  try {
+    // 1️⃣ Exchange code → access token
+    const tokenRes = await axios.post(
+      "https://github.com/login/oauth/access_token",
+      {
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code,
+      },
+      { headers: { Accept: "application/json" } }
+    );
+
+    const accessToken = tokenRes.data.access_token;
+
+    // 2️⃣ Fetch GitHub profile
+    const userRes = await axios.get("https://api.github.com/user", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    // 3️⃣ Fetch email
+    const emailRes = await axios.get(
+      "https://api.github.com/user/emails",
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    const email =
+      emailRes.data.find((e) => e.primary && e.verified)?.email ||
+      `${userRes.data.id}@github.local`;
+
+    // 4️⃣ Find or create user
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          name: userRes.data.login,
+          email,
+          password: "",
+          isVerified: true,
+        },
+      });
+    }
+
+    // 5️⃣ Generate JWT
+    const token = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // 6️⃣ Set cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 86400000,
+    });
+
+    // 7️⃣ Redirect to frontend
+    return res.redirect(`${process.env.FRONTEND_URL}/oauth-success`);
+
+  } catch (err) {
+    console.error("GitHub Auth Error:", err);
+    return res.status(500).json({ message: "GitHub auth failed" });
+  }
+};
+
+
 export const profile = async (req, res) => {
   console.log("profile", req.user);
   try {

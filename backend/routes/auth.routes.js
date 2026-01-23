@@ -2,6 +2,8 @@ import express from "express";
 import {
   forgotPassword,
   googleAuth,
+  githubRedirect,
+  githubCallback,
   loginUser,
   logoutUser,
   profile,
@@ -16,6 +18,8 @@ const useRouter = express.Router();
 useRouter.post("/register", isLoggedIn, registerUser);
 useRouter.post("/login", isLoggedIn, loginUser);
 useRouter.post("/google-auth", googleAuth);
+useRouter.get("/github", githubRedirect);
+useRouter.get("/github/callback", githubCallback);
 useRouter.get("/profile", isLoggedIn, profile);
 useRouter.post("/logout", logoutUser);
 useRouter.post("/frgt", forgotPassword);
