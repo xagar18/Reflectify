@@ -19,10 +19,11 @@ app.use(
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 app.use("/api/v1/user", useRouter);
+app.use("/auth", useRouter);
 
 // Fix for ES modules __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -33,12 +34,12 @@ console.log("__dirname", __dirname);
 // Serve static assets in production
 if (process.env.NODE_ENV === "production") {
   // Correct path: backend -> root -> frontend/dist
-   app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-   // Catch-all route - use regex for Express 5+
-   app.get(/.*/, (req, res) => {
-     res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-   });
+  // Catch-all route - use regex for Express 5+
+  app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  });
 }
 
 const port = process.env.PORT || 3000;

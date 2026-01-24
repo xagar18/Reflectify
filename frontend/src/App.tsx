@@ -8,6 +8,7 @@ import SignUp from "./components/Register";
 import ResetPassword from "./components/ResetPassword";
 import VerifyAccount from "./components/VerifyAccount";
 import Home from "./pages/Home";
+import OAuthSuccess from "./pages/OAuthSuccess";
 import useStore from "./zustand/store";
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
         <Route path="/forgot-password" element={<Forgot />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/verify-account/:token" element={<VerifyAccount />} />
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route
           path="/"
           element={isAuthenticated ? <Home /> : <Navigate to="/login" />}

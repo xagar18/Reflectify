@@ -161,9 +161,20 @@ function ChatArea({ messages, isTyping }: ChatAreaProps) {
                   )}
                 </div>
 
+                {/* Timestamp */}
+                <div
+                  className={`px-1 text-xs ${
+                    theme === "dark" ? "text-gray-500" : "text-gray-400"
+                  } ${msg.sender === "user" ? "text-right" : "text-left"}`}
+                >
+                  {msg.timestamp
+                    ? formatTime(msg.timestamp)
+                    : formatTime(new Date())}
+                </div>
+
                 {/* Copy button - only for user messages */}
                 {msg.sender === "user" && (
-                  <div className="mt-2 flex justify-end opacity-0 transition-all duration-200 group-hover:opacity-100">
+                  <div className="flex justify-end opacity-0 transition-all duration-200 group-hover:opacity-100">
                     <button
                       onClick={() => handleCopyMessage(msg.text)}
                       className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-200 ${
@@ -178,17 +189,6 @@ function ChatArea({ messages, isTyping }: ChatAreaProps) {
                     </button>
                   </div>
                 )}
-
-                {/* Timestamp */}
-                <div
-                  className={`mt-1 px-2 text-xs ${
-                    theme === "dark" ? "text-gray-500" : "text-gray-400"
-                  } ${msg.sender === "user" ? "text-right" : "text-left"}`}
-                >
-                  {msg.timestamp
-                    ? formatTime(msg.timestamp)
-                    : formatTime(new Date())}
-                </div>
               </div>
             </div>
           ))}
