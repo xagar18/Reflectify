@@ -5,7 +5,7 @@ import type { Theme } from "../zustand/store";
 /* ---------- Types ---------- */
 
 type Chat = {
-  id: number;
+  id: string;
   title: string;
 };
 
@@ -13,8 +13,8 @@ type ChatRowProps = {
   chat: Chat;
   isActive: boolean;
   onSelect: () => void;
-  onRename: (id: number, title: string) => void;
-  onDelete: (id: number) => void;
+  onRename: (id: string, title: string) => void;
+  onDelete: (id: string) => void;
   theme?: Theme;
 };
 
