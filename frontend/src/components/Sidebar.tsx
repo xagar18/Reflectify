@@ -5,7 +5,7 @@ import ChatRow from "./ChatRow";
 import { ProfileMenu } from "./ProfileMenu";
 
 type Chat = {
-  id: number;
+  id: string;
   title: string;
 };
 
@@ -13,11 +13,11 @@ type SidebarProps = {
   isOpen: boolean;
   onToggle: () => void;
   chats: Chat[];
-  activeChatId: number | null;
+  activeChatId: string | null;
   onNewChat: () => void;
-  onSelectChat: (id: number) => void;
-  onRenameChat: (id: number, title: string) => void;
-  onDeleteChat: (id: number) => void;
+  onSelectChat: (id: string) => void;
+  onRenameChat: (id: string, title: string) => void;
+  onDeleteChat: (id: string) => void;
 };
 
 function Sidebar({

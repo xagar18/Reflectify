@@ -1,19 +1,21 @@
 import { PanelRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Message } from "../components/ChatArea";
 import ChatArea from "../components/ChatArea";
 import MessageInput, { type AttachedFile } from "../components/MessageInput";
 import Settings from "../components/Settings";
 import Sidebar from "../components/Sidebar";
+import { chatService, type Conversation } from "../services/chatService";
 import { modelService } from "../services/modelService";
 import useStore from "../zustand/store";
 
 /* ================= TYPES ================= */
 
 type Chat = {
-  id: number;
+  id: string; // Changed to string to match database IDs
   title: string;
   messages: Message[];
+  dbId?: string; // Database ID for syncing
 };
 
 /* ================= HELPERS ================= */
@@ -29,6 +31,21 @@ function generateChatTitle(text: string): string {
   return cleaned
     ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
     : "New Reflection";
+}
+
+// Convert database conversation to local Chat format
+function dbConversationToChat(conv: Conversation): Chat {
+  return {
+    id: conv.id,
+    title: conv.title,
+    dbId: conv.id,
+    messages: conv.messages.map((msg, index) => ({
+      id: index,
+      text: msg.content,
+      sender: msg.role === "user" ? "user" : "bot",
+      timestamp: new Date(msg.createdAt),
+    })),
+  };
 }
 
 // Reflectify’s emotional logic - now handled by AI model
@@ -54,25 +71,53 @@ function generateChatTitle(text: string): string {
 
 function Home() {
   const [chats, setChats] = useState<Chat[]>([]);
-  const [activeChatId, setActiveChatId] = useState<number | null>(null);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { theme } = useStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const { theme, isAuthenticated, privacySettings } = useStore();
 
   // 🔑 used ONLY to force input focus
   const [focusInputKey, setFocusInputKey] = useState(0);
 
-  // Load chats from localStorage on component mount
-  useEffect(() => {
+  // Load chats from database or localStorage
+  const loadChats = useCallback(async () => {
+    setIsLoading(true);
+
+    if (isAuthenticated && privacySettings.saveHistory) {
+      // Load from database
+      try {
+        const conversations = await chatService.getConversations();
+        const loadedChats = conversations.map(dbConversationToChat);
+        setChats(loadedChats);
+
+        // Set active chat to the most recent one
+        if (loadedChats.length > 0 && !activeChatId) {
+          setActiveChatId(loadedChats[0].id);
+        }
+      } catch (error) {
+        console.error("Error loading chats from database:", error);
+        // Fallback to localStorage
+        loadFromLocalStorage();
+      }
+    } else {
+      // Load from localStorage for non-authenticated users
+      loadFromLocalStorage();
+    }
+
+    setIsLoading(false);
+  }, [isAuthenticated, privacySettings.saveHistory]);
+
+  const loadFromLocalStorage = () => {
     const savedChats = localStorage.getItem("reflectify-chats");
     const savedActiveChatId = localStorage.getItem("reflectify-active-chat-id");
 
     if (savedChats) {
       try {
         const parsedChats = JSON.parse(savedChats);
-        // Convert timestamp strings back to Date objects
         const chatsWithDates = parsedChats.map((chat: any) => ({
           ...chat,
+          id: String(chat.id), // Ensure ID is string
           messages: chat.messages.map((msg: any) => ({
             ...msg,
             timestamp: msg.timestamp ? new Date(msg.timestamp) : undefined,
@@ -85,9 +130,14 @@ function Home() {
     }
 
     if (savedActiveChatId) {
-      setActiveChatId(parseInt(savedActiveChatId));
+      setActiveChatId(savedActiveChatId);
     }
-  }, []);
+  };
+
+  // Load chats on mount and when auth state changes
+  useEffect(() => {
+    loadChats();
+  }, [loadChats]);
 
   // Save chats to localStorage whenever chats change
   useEffect(() => {
@@ -113,20 +163,45 @@ function Home() {
   }, [isSidebarOpen]);
 
   /* ========== NEW CHAT (ChatGPT BEHAVIOR) ========== */
-  const createNewChat = () => {
+  const createNewChat = async () => {
     // If an empty chat already exists → reuse it
     const emptyChat = chats.find(chat => chat.messages.length === 0);
 
     if (emptyChat) {
       setActiveChatId(emptyChat.id);
     } else {
-      const newChat: Chat = {
-        id: Date.now(),
-        title: "New Reflection",
-        messages: [],
-      };
-      setChats(prev => [newChat, ...prev]);
-      setActiveChatId(newChat.id);
+      // Create in database if authenticated
+      if (isAuthenticated && privacySettings.saveHistory) {
+        try {
+          const conversation = await chatService.createConversation();
+          const newChat: Chat = {
+            id: conversation.id,
+            title: "New Reflection",
+            messages: [],
+            dbId: conversation.id,
+          };
+          setChats(prev => [newChat, ...prev]);
+          setActiveChatId(newChat.id);
+        } catch (error) {
+          console.error("Error creating conversation:", error);
+          // Fallback to local-only chat
+          const newChat: Chat = {
+            id: String(Date.now()),
+            title: "New Reflection",
+            messages: [],
+          };
+          setChats(prev => [newChat, ...prev]);
+          setActiveChatId(newChat.id);
+        }
+      } else {
+        const newChat: Chat = {
+          id: String(Date.now()),
+          title: "New Reflection",
+          messages: [],
+        };
+        setChats(prev => [newChat, ...prev]);
+        setActiveChatId(newChat.id);
+      }
     }
 
     // auto-focus input
@@ -136,17 +211,46 @@ function Home() {
   /* ========== SEND MESSAGE ========== */
   const handleSend = async (text: string, attachments?: AttachedFile[]) => {
     let currentActiveChatId = activeChatId;
+    let currentChat = chats.find(c => c.id === currentActiveChatId);
 
     // If no active chat, create one
     if (!currentActiveChatId) {
-      const newChat: Chat = {
-        id: Date.now(),
-        title: "New Reflection",
-        messages: [],
-      };
-      setChats(prev => [newChat, ...prev]);
-      setActiveChatId(newChat.id);
-      currentActiveChatId = newChat.id;
+      if (isAuthenticated && privacySettings.saveHistory) {
+        try {
+          const conversation = await chatService.createConversation();
+          const newChat: Chat = {
+            id: conversation.id,
+            title: "New Reflection",
+            messages: [],
+            dbId: conversation.id,
+          };
+          setChats(prev => [newChat, ...prev]);
+          setActiveChatId(newChat.id);
+          currentActiveChatId = newChat.id;
+          currentChat = newChat;
+        } catch (error) {
+          console.error("Error creating conversation:", error);
+          const newChat: Chat = {
+            id: String(Date.now()),
+            title: "New Reflection",
+            messages: [],
+          };
+          setChats(prev => [newChat, ...prev]);
+          setActiveChatId(newChat.id);
+          currentActiveChatId = newChat.id;
+          currentChat = newChat;
+        }
+      } else {
+        const newChat: Chat = {
+          id: String(Date.now()),
+          title: "New Reflection",
+          messages: [],
+        };
+        setChats(prev => [newChat, ...prev]);
+        setActiveChatId(newChat.id);
+        currentActiveChatId = newChat.id;
+        currentChat = newChat;
+      }
     }
 
     const userMessage: Message = {
@@ -211,13 +315,29 @@ function Home() {
           })
         );
 
+        // Save messages to database if authenticated
+        if (
+          isAuthenticated &&
+          privacySettings.saveHistory &&
+          currentActiveChatId
+        ) {
+          try {
+            await chatService.addMessages(currentActiveChatId, [
+              { content: text, role: "user" },
+              { content: replyText, role: "assistant" },
+            ]);
+          } catch (error) {
+            console.error("Error saving messages to database:", error);
+          }
+        }
+
         setIsTyping(false);
       }, 1200);
     }, 300);
   };
 
   /* ========== RENAME CHAT ========== */
-  const renameChat = (id: number, title: string) => {
+  const renameChat = async (id: string, title: string) => {
     setChats(prev =>
       prev.map(chat =>
         chat.id === id
@@ -225,10 +345,31 @@ function Home() {
           : chat
       )
     );
+
+    // Update in database if authenticated
+    if (isAuthenticated && privacySettings.saveHistory) {
+      try {
+        await chatService.updateConversation(
+          id,
+          title || "Untitled Reflection"
+        );
+      } catch (error) {
+        console.error("Error updating conversation title:", error);
+      }
+    }
   };
 
   /* ========== DELETE CHAT ========== */
-  const deleteChat = (id: number) => {
+  const deleteChat = async (id: string) => {
+    // Delete from database if authenticated
+    if (isAuthenticated && privacySettings.saveHistory) {
+      try {
+        await chatService.deleteConversation(id);
+      } catch (error) {
+        console.error("Error deleting conversation:", error);
+      }
+    }
+
     setChats(prev => {
       const updated = prev.filter(chat => chat.id !== id);
       if (id === activeChatId) {
