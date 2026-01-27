@@ -46,6 +46,7 @@ npm install
 ### 2. Database Setup
 
 #### Option A: Local PostgreSQL
+
 ```bash
 # Install PostgreSQL and create database
 createdb reflectify_db
@@ -54,6 +55,7 @@ createdb reflectify_db
 ```
 
 #### Option B: Prisma Postgres (Cloud)
+
 ```bash
 # Use Prisma's cloud database service
 npx prisma platform login
@@ -155,17 +157,17 @@ backend/
 
 ### Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes | - |
-| `JWT_SECRET` | JWT signing secret | Yes | - |
-| `JWT_REFRESH_SECRET` | Refresh token secret | Yes | - |
-| `EMAIL_USER` | SMTP email username | No | - |
-| `EMAIL_PASS` | SMTP email password | No | - |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID | No | - |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | No | - |
-| `PORT` | Server port | No | `4000` |
-| `NODE_ENV` | Environment mode | No | `development` |
+| Variable               | Description                  | Required | Default       |
+| ---------------------- | ---------------------------- | -------- | ------------- |
+| `DATABASE_URL`         | PostgreSQL connection string | Yes      | -             |
+| `JWT_SECRET`           | JWT signing secret           | Yes      | -             |
+| `JWT_REFRESH_SECRET`   | Refresh token secret         | Yes      | -             |
+| `EMAIL_USER`           | SMTP email username          | No       | -             |
+| `EMAIL_PASS`           | SMTP email password          | No       | -             |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID       | No       | -             |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret   | No       | -             |
+| `PORT`                 | Server port                  | No       | `4000`        |
+| `NODE_ENV`             | Environment mode             | No       | `development` |
 
 ### Database Schema
 
@@ -181,30 +183,30 @@ See `prisma/schema.prisma` for the complete schema definition.
 
 ### Authentication (`/api/v1/auth`)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/register` | User registration | No |
-| POST | `/login` | User login | No |
-| POST | `/logout` | User logout | Yes |
-| POST | `/refresh` | Refresh access token | Yes |
-| POST | `/verify-email` | Verify email address | No |
-| POST | `/forgot-password` | Request password reset | No |
-| POST | `/reset-password` | Reset password | No |
-| GET | `/google` | Google OAuth login | No |
-| GET | `/google/callback` | Google OAuth callback | No |
+| Method | Endpoint           | Description            | Auth Required |
+| ------ | ------------------ | ---------------------- | ------------- |
+| POST   | `/register`        | User registration      | No            |
+| POST   | `/login`           | User login             | No            |
+| POST   | `/logout`          | User logout            | Yes           |
+| POST   | `/refresh`         | Refresh access token   | Yes           |
+| POST   | `/verify-email`    | Verify email address   | No            |
+| POST   | `/forgot-password` | Request password reset | No            |
+| POST   | `/reset-password`  | Reset password         | No            |
+| GET    | `/google`          | Google OAuth login     | No            |
+| GET    | `/google/callback` | Google OAuth callback  | No            |
 
 ### Chat (`/api/v1/chat`)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/conversations` | Get user conversations | Yes |
-| POST | `/conversations` | Create new conversation | Yes |
-| GET | `/conversations/:id` | Get specific conversation | Yes |
-| PUT | `/conversations/:id` | Update conversation title | Yes |
-| DELETE | `/conversations/:id` | Delete conversation | Yes |
-| DELETE | `/conversations` | Delete all conversations | Yes |
-| POST | `/conversations/:id/messages` | Add single message | Yes |
-| POST | `/conversations/:id/messages/bulk` | Add multiple messages | Yes |
+| Method | Endpoint                           | Description               | Auth Required |
+| ------ | ---------------------------------- | ------------------------- | ------------- |
+| GET    | `/conversations`                   | Get user conversations    | Yes           |
+| POST   | `/conversations`                   | Create new conversation   | Yes           |
+| GET    | `/conversations/:id`               | Get specific conversation | Yes           |
+| PUT    | `/conversations/:id`               | Update conversation title | Yes           |
+| DELETE | `/conversations/:id`               | Delete conversation       | Yes           |
+| DELETE | `/conversations`                   | Delete all conversations  | Yes           |
+| POST   | `/conversations/:id/messages`      | Add single message        | Yes           |
+| POST   | `/conversations/:id/messages/bulk` | Add multiple messages     | Yes           |
 
 ## 🔒 Security Features
 
@@ -227,6 +229,7 @@ EMAIL_FROM="noreply@reflectify.com"
 ```
 
 ### Gmail App Passwords
+
 1. Enable 2FA on your Google account
 2. Go to Google Account settings → Security → App passwords
 3. Generate an app password for "Mail"
@@ -235,6 +238,7 @@ EMAIL_FROM="noreply@reflectify.com"
 ## 🔑 Authentication Flow
 
 ### Traditional Login
+
 1. User provides email/password
 2. Server validates credentials
 3. JWT access token and refresh token issued
@@ -242,6 +246,7 @@ EMAIL_FROM="noreply@reflectify.com"
 5. Refresh token used to get new access tokens
 
 ### Google OAuth
+
 1. User clicks Google login
 2. Redirected to Google OAuth
 3. Google returns authorization code
@@ -333,6 +338,7 @@ CMD ["npm", "start"]
 ### Common Issues
 
 **Database connection fails:**
+
 ```bash
 # Check if PostgreSQL is running
 sudo systemctl status postgresql
@@ -342,6 +348,7 @@ psql -h localhost -U username -d reflectify_db
 ```
 
 **Prisma client issues:**
+
 ```bash
 # Regenerate Prisma client
 npm run generate
@@ -351,6 +358,7 @@ npx prisma migrate reset
 ```
 
 **Port already in use:**
+
 ```bash
 # Find process using port 4000
 lsof -i :4000
@@ -360,6 +368,7 @@ kill -9 <PID>
 ```
 
 **JWT token errors:**
+
 - Verify `JWT_SECRET` is set
 - Check token expiration times
 - Ensure tokens aren't corrupted
@@ -379,6 +388,7 @@ DEBUG=* npm run dev
 ### Health Checks
 
 The API includes health check endpoints:
+
 - `GET /health` - Basic health check
 
 ### Performance

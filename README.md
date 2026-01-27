@@ -5,6 +5,7 @@ An AI-powered emotional intelligence chat application that provides empathetic c
 ## ✨ What is Reflectify?
 
 Reflectify is a sophisticated chat application designed to:
+
 - **Foster Emotional Intelligence**: AI-powered conversations that acknowledge and explore feelings
 - **Provide Safe Space**: A judgment-free environment for self-reflection
 - **Offer Contextual Support**: Intelligent responses based on emotional context
@@ -54,6 +55,7 @@ cd reflectify
 Create environment files for each component:
 
 #### Backend (.env)
+
 ```env
 DATABASE_URL="postgresql://username:password@localhost:5432/reflectify_db"
 JWT_SECRET="your_super_secret_jwt_key_here"
@@ -66,12 +68,14 @@ PORT=4000
 ```
 
 #### Frontend (.env)
+
 ```env
 VITE_API_URL=http://localhost:4000
 VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 ```
 
 #### Model (.env)
+
 ```env
 HUGGINGFACE_TOKEN=your_huggingface_token_here
 HOST=0.0.0.0
@@ -92,6 +96,7 @@ npx prisma postgres create
 ### 4. Install Dependencies
 
 #### Backend
+
 ```bash
 cd backend
 npm install
@@ -100,12 +105,14 @@ npx prisma migrate dev --name init
 ```
 
 #### Frontend
+
 ```bash
 cd ../frontend
 npm install
 ```
 
 #### AI Model
+
 ```bash
 cd ../model
 # Windows
@@ -119,6 +126,7 @@ pip install -r requirements.txt
 ### 5. Start All Services
 
 #### Terminal 1: AI Model Server
+
 ```bash
 cd model
 source venv/bin/activate  # Windows: venv\Scripts\activate
@@ -126,12 +134,14 @@ python -m uvicorn api:app --host 0.0.0.0 --port 8001
 ```
 
 #### Terminal 2: Backend API Server
+
 ```bash
 cd backend
 npm run dev
 ```
 
 #### Terminal 3: Frontend Development Server
+
 ```bash
 cd frontend
 npm run dev
@@ -147,12 +157,14 @@ npm run dev
 ## 📜 Available Scripts
 
 ### Root Level Scripts
+
 ```bash
 npm run build    # Build all components for production
 npm run start    # Start backend in production mode
 ```
 
 ### Frontend Scripts
+
 ```bash
 cd frontend
 npm run dev      # Development server
@@ -161,6 +173,7 @@ npm run lint     # Code linting
 ```
 
 ### Backend Scripts
+
 ```bash
 cd backend
 npm run dev      # Development with nodemon
@@ -169,6 +182,7 @@ npm run generate # Generate Prisma client
 ```
 
 ### Model Scripts
+
 ```bash
 cd model
 python -m uvicorn api:app --reload    # Development server
@@ -181,6 +195,7 @@ python test_gpu.py                    # Test GPU availability
 ### Authentication Setup
 
 #### Google OAuth (Optional)
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing
 3. Enable Google+ API
@@ -190,11 +205,14 @@ python test_gpu.py                    # Test GPU availability
    - `https://yourdomain.com/api/v1/auth/google/callback`
 
 #### Email Service (Optional)
+
 For password reset functionality:
+
 1. Use Gmail with app passwords
 2. Or configure SMTP settings in backend `.env`
 
 ### Hugging Face Setup
+
 1. Create account at [Hugging Face](https://huggingface.co/)
 2. Go to Settings → Access Tokens
 3. Create token with "Read" permissions
@@ -203,17 +221,20 @@ For password reset functionality:
 ## 🎯 Key Features
 
 ### Emotional AI Conversations
+
 - Context-aware responses based on user emotions
 - Empathetic and supportive dialogue
 - Reflective conversation guidance
 
 ### Advanced Data Management
+
 - **Conflict Resolution**: Automatic sync between local and server data
 - **Offline Support**: Queue operations when offline
 - **Privacy Controls**: User-managed data persistence
 - **Real-time Sync**: Live synchronization indicators
 
 ### Security & Privacy
+
 - JWT-based authentication with refresh tokens
 - Password hashing with bcrypt
 - CORS protection
@@ -221,6 +242,7 @@ For password reset functionality:
 - Secure API endpoints
 
 ### User Experience
+
 - **Responsive Design**: Works on all devices
 - **Dark/Light Themes**: User preference saving
 - **Real-time Updates**: Live typing indicators
@@ -238,11 +260,13 @@ The application uses PostgreSQL with Prisma ORM:
 ## 🔌 API Architecture
 
 ### RESTful Endpoints
+
 - **Authentication**: `/api/v1/auth/*`
 - **Chat Operations**: `/api/v1/chat/*`
 - **Health Checks**: `/health`
 
 ### AI Integration
+
 - **Model Server**: Dedicated FastAPI service
 - **Health Monitoring**: Automatic model status checks
 - **Fallback Handling**: Graceful degradation
@@ -274,6 +298,7 @@ Each component includes Docker support for containerized deployment.
 ## 🧪 Testing
 
 ### Manual Testing
+
 1. Test user registration and login
 2. Create conversations and send messages
 3. Test AI responses for emotional content
@@ -281,6 +306,7 @@ Each component includes Docker support for containerized deployment.
 5. Test offline/online scenarios
 
 ### API Testing
+
 ```bash
 # Test backend API
 curl -X GET http://localhost:4000/health
@@ -294,21 +320,25 @@ curl -X GET http://localhost:8001/health
 ### Common Issues
 
 **Services won't start:**
+
 - Check port availability (4000, 5173, 8001)
 - Verify environment variables
 - Check database connectivity
 
 **AI model issues:**
+
 - Ensure Hugging Face token is valid
 - Check available disk space (20GB+ needed)
 - Verify GPU/CPU compatibility
 
 **Database errors:**
+
 - Run `npx prisma migrate deploy`
 - Check database credentials
 - Verify PostgreSQL is running
 
 **Build failures:**
+
 - Clear node_modules and reinstall
 - Check Node.js and Python versions
 - Verify all dependencies are installed
@@ -343,11 +373,13 @@ We welcome contributions! Please:
 ### Expected Performance
 
 **Development Environment:**
+
 - Frontend: < 100ms response times
 - Backend: < 200ms API response times
 - AI Model: 5-60 seconds per response (GPU/CPU)
 
 **Production Optimizations:**
+
 - Database indexing and query optimization
 - Redis caching for sessions
 - CDN for static assets

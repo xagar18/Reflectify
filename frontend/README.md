@@ -110,10 +110,10 @@ frontend/
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_API_URL` | Backend API URL | `http://localhost:4000` |
-| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID | - |
+| Variable                | Description            | Default                 |
+| ----------------------- | ---------------------- | ----------------------- |
+| `VITE_API_URL`          | Backend API URL        | `http://localhost:4000` |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID | -                       |
 
 ### Build Configuration
 
@@ -125,10 +125,10 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': 'http://localhost:4000'
-    }
-  }
-})
+      "/api": "http://localhost:4000",
+    },
+  },
+});
 ```
 
 ## 🔐 Authentication
@@ -141,15 +141,18 @@ The app supports two authentication methods:
 ## 💾 Data Management
 
 ### Local Storage
+
 - User preferences (theme, sidebar state)
 - Non-authenticated user chats
 
 ### Server Storage (Authenticated Users)
+
 - User accounts and sessions
 - Chat conversations and messages
 - Privacy settings
 
 ### Synchronization
+
 - Automatic conflict resolution
 - Offline queue for failed operations
 - Real-time sync status indicators
@@ -173,17 +176,20 @@ Theme preference is saved locally and synced across sessions.
 ## 🔍 Development Guidelines
 
 ### Code Style
+
 - **ESLint** for code linting
 - **Prettier** for code formatting
 - **TypeScript** for type safety
 
 ### Component Patterns
+
 - Functional components with hooks
 - Custom hooks for shared logic
 - Consistent naming conventions
 - Prop validation with TypeScript
 
 ### State Management
+
 - **Zustand** for global state
 - **React hooks** for local state
 - **Optimistic updates** for better UX
@@ -193,17 +199,20 @@ Theme preference is saved locally and synced across sessions.
 ### Common Issues
 
 **Build fails with type errors:**
+
 ```bash
 npm run build:check
 # Fix TypeScript errors
 ```
 
 **API connection issues:**
+
 - Ensure backend server is running on port 4000
 - Check `VITE_API_URL` environment variable
 - Verify CORS settings in backend
 
 **Styling issues:**
+
 ```bash
 npm run lint
 # Check for Tailwind CSS class conflicts

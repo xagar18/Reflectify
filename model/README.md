@@ -34,11 +34,13 @@ A FastAPI-based AI model server using Llama 3.1 for emotional intelligence and r
 ### Hardware Requirements
 
 **Minimum (CPU-only):**
+
 - 8GB RAM
 - 4-core CPU
 - 10GB free disk space
 
 **Recommended (GPU):**
+
 - 16GB+ RAM
 - NVIDIA GPU with 8GB+ VRAM
 - CUDA 11.8+ compatible
@@ -75,6 +77,7 @@ setup.bat
 ```
 
 This script will:
+
 - Create Python virtual environment
 - Install all dependencies
 - Set up the environment
@@ -102,6 +105,7 @@ pip install -r requirements.txt
 ### 6. Run the Server
 
 #### Development Mode
+
 ```bash
 # Activate virtual environment first
 source venv/bin/activate  # Windows: venv\Scripts\activate
@@ -111,6 +115,7 @@ python -m uvicorn api:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 #### Production Mode
+
 ```bash
 # Using uvicorn directly
 uvicorn api:app --host 0.0.0.0 --port 8001 --workers 4
@@ -155,12 +160,12 @@ model/
 
 ### Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `HUGGINGFACE_TOKEN` | Hugging Face API token | Yes | - |
-| `HOST` | Server host | No | `0.0.0.0` |
-| `PORT` | Server port | No | `8001` |
-| `WORKERS` | Number of worker processes | No | `1` |
+| Variable            | Description                | Required | Default   |
+| ------------------- | -------------------------- | -------- | --------- |
+| `HUGGINGFACE_TOKEN` | Hugging Face API token     | Yes      | -         |
+| `HOST`              | Server host                | No       | `0.0.0.0` |
+| `PORT`              | Server port                | No       | `8001`    |
+| `WORKERS`           | Number of worker processes | No       | `1`       |
 
 ### Model Configuration
 
@@ -179,11 +184,13 @@ MODEL_CONFIG = {
 ## 🔌 API Endpoints
 
 ### Health Check
+
 ```http
 GET /health
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -193,6 +200,7 @@ Response:
 ```
 
 ### AI Reflection
+
 ```http
 POST /api/v1/reflect
 Content-Type: application/json
@@ -204,6 +212,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "response": "I hear that work can feel overwhelming sometimes. It's completely valid to feel this way when there's a lot on your plate. Would you like to talk about what's contributing to this feeling?",
@@ -215,6 +224,7 @@ Response:
 ### Interactive API Documentation
 
 When the server is running, visit:
+
 - **Swagger UI**: `http://localhost:8001/docs`
 - **ReDoc**: `http://localhost:8001/redoc`
 
@@ -231,11 +241,13 @@ When the server is running, visit:
 ### Performance Expectations
 
 **CPU-only (Intel i7/AMD Ryzen 7):**
+
 - Model load time: 2-3 minutes
 - Response time: 30-60 seconds per message
 - Memory usage: 8-12GB RAM
 
 **GPU (NVIDIA RTX 3060+):**
+
 - Model load time: 30-60 seconds
 - Response time: 5-15 seconds per message
 - Memory usage: 6-8GB VRAM + 4GB RAM
@@ -245,6 +257,7 @@ When the server is running, visit:
 ### Common Issues
 
 **"CUDA out of memory"**
+
 ```
 Solution: Reduce model size or use CPU
 # In config.py, change device to "cpu"
@@ -252,6 +265,7 @@ DEVICE = "cpu"
 ```
 
 **"Model loading failed"**
+
 ```
 Check:
 1. Valid Hugging Face token
@@ -261,6 +275,7 @@ Check:
 ```
 
 **"Port already in use"**
+
 ```bash
 # Find process using port 8001
 lsof -i :8001
@@ -269,6 +284,7 @@ kill -9 <PID>
 ```
 
 **Slow responses on CPU**
+
 ```
 Expected behavior. Consider:
 1. Using a smaller model
@@ -343,6 +359,7 @@ CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8001"]
 ```
 
 Build and run:
+
 ```bash
 docker build -t reflectify-model .
 docker run -p 8001:8001 --env-file .env reflectify-model
@@ -351,6 +368,7 @@ docker run -p 8001:8001 --env-file .env reflectify-model
 ### Cloud Deployment
 
 **Recommended platforms:**
+
 - **AWS EC2** with GPU instances (P3, G4dn)
 - **Google Cloud AI** with A100 GPUs
 - **Azure ML** with NVIDIA VMs
@@ -408,10 +426,10 @@ The model server integrates with the React frontend through the model service:
 
 ```typescript
 // frontend/src/services/modelService.ts
-const response = await fetch('http://localhost:8001/api/v1/reflect', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ message: userInput })
+const response = await fetch("http://localhost:8001/api/v1/reflect", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message: userInput }),
 });
 ```
 
