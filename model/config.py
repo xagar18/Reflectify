@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
+# Using 1B model to fit entirely in GTX 1650's 4GB VRAM for faster inference
+MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
 HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
 
 SYSTEM_PROMPT = """You are Reflectify, a reflection-first emotional mirror designed to help users understand their emotions and redirect them toward real-world resolution.

@@ -16,6 +16,7 @@ type Chat = {
   title: string;
   messages: Message[];
   dbId?: string; // Database ID for syncing
+  messagesLoaded?: boolean; // Track if messages have been loaded from DB
 };
 
 /* ================= HELPERS ================= */
@@ -39,6 +40,7 @@ function dbConversationToChat(conv: Conversation): Chat {
     id: conv.id,
     title: conv.title,
     dbId: conv.id,
+    messagesLoaded: conv.messages.length > 0, // Mark if messages came with the conversation
     messages: conv.messages.map((msg, index) => ({
       id: index,
       text: msg.content,
@@ -72,9 +74,10 @@ function dbConversationToChat(conv: Conversation): Chat {
 function Home() {
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [isTyping, setIsTyping] = useState(false);
+  const [typingChatId, setTypingChatId] = useState<string | null>(null); // Track which chat is typing
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false); // Loading state for messages
   const { theme, isAuthenticated, privacySettings } = useStore();
 
   // 🔑 used ONLY to force input focus
@@ -85,15 +88,40 @@ function Home() {
     setIsLoading(true);
 
     if (isAuthenticated && privacySettings.saveHistory) {
-      // Load from database
+      // Load from database (titles only, messages loaded on demand)
       try {
         const conversations = await chatService.getConversations();
         const loadedChats = conversations.map(dbConversationToChat);
         setChats(loadedChats);
 
-        // Set active chat to the most recent one
+        // Set active chat to the most recent one and load its messages
         if (loadedChats.length > 0 && !activeChatId) {
-          setActiveChatId(loadedChats[0].id);
+          const firstChatId = loadedChats[0].id;
+          setActiveChatId(firstChatId);
+          // Load messages for the first chat
+          if (!loadedChats[0].messagesLoaded) {
+            try {
+              const conversation =
+                await chatService.getConversation(firstChatId);
+              setChats(prev =>
+                prev.map(c => {
+                  if (c.id !== firstChatId) return c;
+                  return {
+                    ...c,
+                    messagesLoaded: true,
+                    messages: conversation.messages.map((msg, index) => ({
+                      id: index,
+                      text: msg.content,
+                      sender: msg.role === "user" ? "user" : ("bot" as const),
+                      timestamp: new Date(msg.createdAt),
+                    })),
+                  };
+                })
+              );
+            } catch (error) {
+              console.error("Error loading first chat messages:", error);
+            }
+          }
         }
       } catch (error) {
         console.error("Error loading chats from database:", error);
@@ -161,6 +189,50 @@ function Home() {
       JSON.stringify(isSidebarOpen)
     );
   }, [isSidebarOpen]);
+
+  // Load messages when switching to a conversation that hasn't been loaded yet
+  const loadMessagesForChat = useCallback(
+    async (chatId: string) => {
+      const chat = chats.find(c => c.id === chatId);
+      if (!chat || chat.messagesLoaded || !chat.dbId) return;
+
+      if (isAuthenticated && privacySettings.saveHistory) {
+        setIsLoadingMessages(true);
+        try {
+          const conversation = await chatService.getConversation(chatId);
+          setChats(prev =>
+            prev.map(c => {
+              if (c.id !== chatId) return c;
+              return {
+                ...c,
+                messagesLoaded: true,
+                messages: conversation.messages.map((msg, index) => ({
+                  id: index,
+                  text: msg.content,
+                  sender: msg.role === "user" ? "user" : ("bot" as const),
+                  timestamp: new Date(msg.createdAt),
+                })),
+              };
+            })
+          );
+        } catch (error) {
+          console.error("Error loading messages:", error);
+        } finally {
+          setIsLoadingMessages(false);
+        }
+      }
+    },
+    [chats, isAuthenticated, privacySettings.saveHistory]
+  );
+
+  // Handle chat selection with lazy loading
+  const handleSelectChat = useCallback(
+    (chatId: string) => {
+      setActiveChatId(chatId);
+      loadMessagesForChat(chatId);
+    },
+    [loadMessagesForChat]
+  );
 
   /* ========== NEW CHAT (ChatGPT BEHAVIOR) ========== */
   const createNewChat = async () => {
@@ -279,7 +351,7 @@ function Home() {
 
     // Start typing indicator after user message is sent
     setTimeout(() => {
-      setIsTyping(true);
+      setTypingChatId(currentActiveChatId);
 
       setTimeout(async () => {
         // Generate contextual reply based on attachments
@@ -331,7 +403,7 @@ function Home() {
           }
         }
 
-        setIsTyping(false);
+        setTypingChatId(null);
       }, 1200);
     }, 300);
   };
@@ -396,7 +468,7 @@ function Home() {
         chats={chats}
         activeChatId={activeChatId}
         onNewChat={createNewChat}
-        onSelectChat={setActiveChatId}
+        onSelectChat={handleSelectChat}
         onRenameChat={renameChat}
         onDeleteChat={deleteChat}
       />
@@ -439,7 +511,11 @@ function Home() {
           </div>
         </div>
 
-        <ChatArea messages={activeMessages} isTyping={isTyping} />
+        <ChatArea
+          messages={activeMessages}
+          isTyping={typingChatId === activeChatId}
+          isLoadingMessages={isLoadingMessages}
+        />
 
         <MessageInput onSend={handleSend} autoFocusTrigger={focusInputKey} />
       </main>

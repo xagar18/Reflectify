@@ -14,9 +14,10 @@ export type Message = {
 type ChatAreaProps = {
   messages: Message[];
   isTyping: boolean;
+  isLoadingMessages?: boolean;
 };
 
-function ChatArea({ messages, isTyping }: ChatAreaProps) {
+function ChatArea({ messages, isTyping, isLoadingMessages }: ChatAreaProps) {
   const { theme } = useStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +46,39 @@ function ChatArea({ messages, isTyping }: ChatAreaProps) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Empty state or loading state
+  if (isLoadingMessages) {
+    return (
+      <div className="flex h-full items-center justify-center p-4 text-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex items-center gap-1">
+            <span
+              className={`h-3 w-3 animate-bounce rounded-full ${
+                theme === "dark" ? "bg-gray-400" : "bg-gray-500"
+              }`}
+              style={{ animationDelay: "0ms" }}
+            ></span>
+            <span
+              className={`h-3 w-3 animate-bounce rounded-full ${
+                theme === "dark" ? "bg-gray-400" : "bg-gray-500"
+              }`}
+              style={{ animationDelay: "150ms" }}
+            ></span>
+            <span
+              className={`h-3 w-3 animate-bounce rounded-full ${
+                theme === "dark" ? "bg-gray-400" : "bg-gray-500"
+              }`}
+              style={{ animationDelay: "300ms" }}
+            ></span>
+          </div>
+          <p className={theme === "dark" ? "text-gray-400" : "text-gray-600"}>
+            Loading messages...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Empty state
   if (messages.length === 0) {
@@ -192,6 +226,40 @@ function ChatArea({ messages, isTyping }: ChatAreaProps) {
               </div>
             </div>
           ))}
+
+          {/* Typing indicator */}
+          {isTyping && (
+            <div className="animate-in slide-in-from-bottom-2 flex justify-start duration-300">
+              <div
+                className={`inline-block rounded-2xl px-4 py-3 ${
+                  theme === "dark"
+                    ? "bg-gray-700 text-gray-100"
+                    : "bg-gray-100 text-gray-900"
+                }`}
+              >
+                <div className="flex items-center gap-1">
+                  <span
+                    className={`h-2 w-2 animate-bounce rounded-full ${
+                      theme === "dark" ? "bg-gray-400" : "bg-gray-500"
+                    }`}
+                    style={{ animationDelay: "0ms" }}
+                  ></span>
+                  <span
+                    className={`h-2 w-2 animate-bounce rounded-full ${
+                      theme === "dark" ? "bg-gray-400" : "bg-gray-500"
+                    }`}
+                    style={{ animationDelay: "150ms" }}
+                  ></span>
+                  <span
+                    className={`h-2 w-2 animate-bounce rounded-full ${
+                      theme === "dark" ? "bg-gray-400" : "bg-gray-500"
+                    }`}
+                    style={{ animationDelay: "300ms" }}
+                  ></span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

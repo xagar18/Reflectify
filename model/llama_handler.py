@@ -8,12 +8,22 @@ def get_generator():
     global generator
     if generator is None:
         print("🔁 Initializing Llama model (one-time load)...")
+
+        # Check CUDA availability
+        if torch.cuda.is_available():
+            print(f"🎮 Using GPU: {torch.cuda.get_device_name(0)}")
+            print(f"📊 VRAM Available: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+            device = 0  # Force GPU only
+        else:
+            print("⚠️ CUDA not available, using CPU")
+            device = -1  # CPU fallback
+
         generator = pipeline(
             "text-generation",
             model=MODEL_NAME,
             token=HUGGINGFACE_TOKEN,
             torch_dtype=torch.float16,
-            device_map="auto"
+            device=device  # Force specific device instead of auto
         )
         print("✅ Llama model ready.")
     return generator
