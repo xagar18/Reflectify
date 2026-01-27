@@ -24,3 +24,27 @@ export const isLoggedIn = async (req, res, next) => {
     next();
   }
 };
+
+// Middleware that requires authentication (returns 401 if not authenticated)
+export const authenticateToken = async (req, res, next) => {
+  try {
+    const jwtToken = req.cookies.token;
+
+    if (!jwtToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error("Auth token verification error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
+    });
+  }
+};

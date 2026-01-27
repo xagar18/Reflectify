@@ -37,7 +37,7 @@ export const chatService = {
     return data.conversation;
   },
 
-  // Get all conversations for the current user
+  // Get all conversations for the current user (titles only, no messages)
   async getConversations(): Promise<Conversation[]> {
     const response = await fetch(`${API_BASE_URL}/api/v1/chat/conversations`, {
       method: "GET",

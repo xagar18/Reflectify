@@ -5,6 +5,7 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import useRouter from "./routes/auth.routes.js";
+import chatRouter from "./routes/chat.routes.js";
 
 dotenv.config();
 
@@ -16,13 +17,14 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
 app.use("/api/v1/user", useRouter);
+app.use("/api/v1/chat", chatRouter);
 app.use("/auth", useRouter);
 
 // Fix for ES modules __dirname

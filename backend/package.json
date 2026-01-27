@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "generate": "prisma generate",
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node --import tsx index.js",
+    "dev": "nodemon --exec \"node --import tsx\" index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,7 +14,8 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@prisma/client": "^6.17.1",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
@@ -25,9 +26,12 @@
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.9",
-    "prisma": "^6.17.1"
+    "pg": "^8.17.2",
+    "prisma": "^7.3.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@types/node": "^25.0.10",
+    "nodemon": "^3.1.10",
+    "tsx": "^4.21.0"
   }
 }
