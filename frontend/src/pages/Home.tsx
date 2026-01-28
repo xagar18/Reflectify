@@ -6,7 +6,8 @@ import MessageInput, { type AttachedFile } from "../components/MessageInput";
 import Settings from "../components/Settings";
 import Sidebar from "../components/Sidebar";
 import { chatService, type Conversation } from "../services/chatService";
-import { modelService } from "../services/modelService";
+import { modelService, type ChatMessage } from "../services/modelService";
+import { globalContextService, type GlobalContextItem } from "../services/globalContextService";
 import useStore from "../zustand/store";
 
 /* ================= TYPES ================= */
@@ -78,7 +79,9 @@ function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false); // Loading state for messages
-  const { theme, isAuthenticated, privacySettings } = useStore();
+  const [globalContext, setGlobalContext] = useState<GlobalContextItem[]>([]);
+  const [isLoadingGlobalContext, setIsLoadingGlobalContext] = useState(false);
+  const { theme, isAuthenticated, privacySettings, userData, globalContextVersion } = useStore();
 
   // 🔑 used ONLY to force input focus
   const [focusInputKey, setFocusInputKey] = useState(0);
@@ -162,10 +165,30 @@ function Home() {
     }
   };
 
+  // Load global context
+  const loadGlobalContext = useCallback(async () => {
+    if (isAuthenticated) {
+      setIsLoadingGlobalContext(true);
+      try {
+        const contextItems = await globalContextService.getGlobalContext();
+        setGlobalContext(contextItems);
+      } catch (error) {
+        console.error("Error loading global context:", error);
+      } finally {
+        setIsLoadingGlobalContext(false);
+      }
+    }
+  }, [isAuthenticated]);
+
   // Load chats on mount and when auth state changes
   useEffect(() => {
     loadChats();
   }, [loadChats]);
+
+  // Load global context on mount, when auth changes, or when globalContextVersion changes
+  useEffect(() => {
+    loadGlobalContext();
+  }, [loadGlobalContext, globalContextVersion]);
 
   // Save chats to localStorage whenever chats change
   useEffect(() => {
@@ -349,63 +372,85 @@ function Home() {
       })
     );
 
-    // Start typing indicator after user message is sent
-    setTimeout(() => {
-      setTypingChatId(currentActiveChatId);
+    // Start typing indicator immediately and get AI response
+    setTypingChatId(currentActiveChatId);
 
-      setTimeout(async () => {
-        // Generate contextual reply based on attachments
-        let replyText = await modelService.getReflection(text);
-        if (attachments && attachments.length > 0) {
-          const imageCount = attachments.filter(a => a.type === "image").length;
-          const fileCount = attachments.length - imageCount;
+    // Get AI response (no artificial delays)
+    (async () => {
+      // Build context from previous messages (respecting context limit from env)
+      const currentChatState = chats.find(c => c.id === currentActiveChatId);
+      const contextMessages: ChatMessage[] = [];
+      const contextLimit = parseInt(
+        import.meta.env.VITE_CONTEXT_MESSAGE_LIMIT || "10",
+        10
+      );
 
-          if (imageCount > 0 && text) {
-            replyText = `Thank you for sharing that image with your thoughts. ${replyText}`;
-          } else if (imageCount > 0) {
-            replyText =
-              "Thank you for sharing this image. Images can often express feelings that words cannot. What does this image represent to you? 🎨";
-          } else if (fileCount > 0) {
-            replyText = `I've received your file${fileCount > 1 ? "s" : ""}. Thank you for trusting me with this. Is there anything specific about ${fileCount > 1 ? "them" : "it"} you'd like to discuss? 📎`;
-          }
+      if (currentChatState && contextLimit > 0) {
+        // Get the last N messages based on context limit (including the new user message)
+        const allMessages = [...currentChatState.messages, userMessage];
+        const startIndex = Math.max(0, allMessages.length - contextLimit);
+        const contextSlice = allMessages.slice(startIndex, -1); // Exclude the last message (current user message)
+
+        for (const msg of contextSlice) {
+          contextMessages.push({
+            role: msg.sender === "user" ? "user" : "assistant",
+            content: msg.text,
+          });
         }
+      }
 
-        const botMessage: Message = {
-          id: Date.now() + 1,
-          text: replyText,
-          sender: "bot",
-          timestamp: new Date(),
-        };
+      // Generate contextual reply based on attachments
+      const formattedGlobalContext = globalContextService.formatGlobalContextForAI(globalContext);
+      let replyText = await modelService.getReflection(text, contextMessages, formattedGlobalContext);
+      if (attachments && attachments.length > 0) {
+        const imageCount = attachments.filter(a => a.type === "image").length;
+        const fileCount = attachments.length - imageCount;
 
-        setChats(prev =>
-          prev.map(chat => {
-            if (chat.id !== currentActiveChatId) return chat;
-            return {
-              ...chat,
-              messages: [...chat.messages, botMessage],
-            };
-          })
-        );
-
-        // Save messages to database if authenticated
-        if (
-          isAuthenticated &&
-          privacySettings.saveHistory &&
-          currentActiveChatId
-        ) {
-          try {
-            await chatService.addMessages(currentActiveChatId, [
-              { content: text, role: "user" },
-              { content: replyText, role: "assistant" },
-            ]);
-          } catch (error) {
-            console.error("Error saving messages to database:", error);
-          }
+        if (imageCount > 0 && text) {
+          replyText = `Thank you for sharing that image with your thoughts. ${replyText}`;
+        } else if (imageCount > 0) {
+          replyText =
+            "Thank you for sharing this image. Images can often express feelings that words cannot. What does this image represent to you? 🎨";
+        } else if (fileCount > 0) {
+          replyText = `I've received your file${fileCount > 1 ? "s" : ""}. Thank you for trusting me with this. Is there anything specific about ${fileCount > 1 ? "them" : "it"} you'd like to discuss? 📎`;
         }
+      }
 
-        setTypingChatId(null);
-      }, 1200);
-    }, 300);
+      const botMessage: Message = {
+        id: Date.now() + 1,
+        text: replyText,
+        sender: "bot",
+        timestamp: new Date(),
+      };
+
+      setChats(prev =>
+        prev.map(chat => {
+          if (chat.id !== currentActiveChatId) return chat;
+          return {
+            ...chat,
+            messages: [...chat.messages, botMessage],
+          };
+        })
+      );
+
+      // Save messages to database if authenticated
+      if (
+        isAuthenticated &&
+        privacySettings.saveHistory &&
+        currentActiveChatId
+      ) {
+        try {
+          await chatService.addMessages(currentActiveChatId, [
+            { content: text, role: "user" },
+            { content: replyText, role: "assistant" },
+          ]);
+        } catch (error) {
+          console.error("Error saving messages to database:", error);
+        }
+      }
+
+      setTypingChatId(null);
+    })();
   };
 
   /* ========== RENAME CHAT ========== */

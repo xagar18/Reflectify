@@ -32,7 +32,7 @@ export default function SignUp() {
         );
         toast.success("Signed up with Google!");
         console.log("Google auth response", response.data);
-        auth(response.data.user);
+        await auth(response.data.user);
         navigate("/");
       } catch (error) {
         console.error("Google auth failed", error);

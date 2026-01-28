@@ -27,7 +27,7 @@ export default function SignIn() {
         );
         toast.success("Logged in with Google!");
         console.log("Google auth response", response.data);
-        auth(response.data.user);
+        await auth(response.data.user);
         navigate("/");
       } catch (error) {
         console.error("Google auth failed", error);
@@ -81,7 +81,7 @@ export default function SignIn() {
       );
       toast.success(response.data.message); // Show success notification
       console.log("output", response.data.user); // Log user data for debugging
-      auth(response.data.user); // Update global state with logged-in user data
+      await auth(response.data.user); // Update global state with logged-in user data
       navigate("/"); // Redirect to home page after successful login
     } catch (error: any) {
       console.error("Login failed", error); // Log error for debugging

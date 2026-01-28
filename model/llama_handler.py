@@ -1,6 +1,7 @@
 from transformers import pipeline
 import torch
 from config import MODEL_NAME, HUGGINGFACE_TOKEN, SYSTEM_PROMPT
+from typing import List, Dict
 
 generator = None
 
@@ -28,18 +29,38 @@ def get_generator():
         print("✅ Llama model ready.")
     return generator
 
-def reflect(user_input: str) -> str:
+def reflect(user_input: str, context: List[Dict[str, str]] = None, global_context: str = "") -> str:
     gen = get_generator()
+
+    # Build system prompt with global context integrated
+    system_content = SYSTEM_PROMPT
+
+    # Add global context if available - integrate directly into system prompt
+    if global_context and global_context.strip():
+        system_content += f"\n\nIMPORTANT - USER'S PERSONAL INFORMATION (use this to personalize responses):\n{global_context}"
+
+    # Build messages with system prompt
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_input}
+        {"role": "system", "content": system_content}
     ]
+
+    # Add context messages (previous conversation)
+    if context:
+        for msg in context:
+            messages.append({
+                "role": msg["role"] if msg["role"] != "assistant" else "assistant",
+                "content": msg["content"]
+            })
+
+    # Add current user message
+    messages.append({"role": "user", "content": user_input})
 
     response = gen(
         messages,
-        max_new_tokens=120,
+        max_new_tokens=100,
         temperature=0.6,
-        do_sample=True
+        do_sample=True,
+        pad_token_id=gen.tokenizer.eos_token_id
     )
 
     return response[0]["generated_text"][-1]["content"]

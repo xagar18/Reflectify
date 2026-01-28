@@ -1,6 +1,16 @@
 import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
 
-export const isLoggedIn = async (req, res, next) => {
+// Extend Request interface to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
+
+export const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
   try {
     console.log("Cookies received:", req.cookies);
     const jwtToken = req.cookies.token;
@@ -14,8 +24,8 @@ export const isLoggedIn = async (req, res, next) => {
     }
 
     // If token exists => verify and attach user
-    const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
-    console.log("Token verified successfully, user ID:", decoded.id);
+    const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET!) as any;
+    console.log("Token verified successfully, user ID:", (decoded as any).id);
     req.user = decoded;
     next();
   } catch (error) {
@@ -26,7 +36,7 @@ export const isLoggedIn = async (req, res, next) => {
 };
 
 // Middleware that requires authentication (returns 401 if not authenticated)
-export const authenticateToken = async (req, res, next) => {
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const jwtToken = req.cookies.token;
 
@@ -37,7 +47,7 @@ export const authenticateToken = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
+    const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET!) as any;
     req.user = decoded;
     next();
   } catch (error) {

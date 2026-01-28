@@ -1,7 +1,17 @@
-import prisma from "../config/db.js";
+import { Request, Response } from "express";
+import prisma from "../prisma-client.js";
+
+// Extend Request interface to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 
 // Create a new conversation
-export const createConversation = async (req, res) => {
+export const createConversation = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
     const { title } = req.body;
@@ -30,7 +40,7 @@ export const createConversation = async (req, res) => {
 };
 
 // Get all conversations for a user (titles only, no messages for faster loading)
-export const getConversations = async (req, res) => {
+export const getConversations = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
 
@@ -59,14 +69,14 @@ export const getConversations = async (req, res) => {
 };
 
 // Get a single conversation by ID
-export const getConversation = async (req, res) => {
+export const getConversation = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
 
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id,
+        id: String(id),
         userId,
       },
       include: {
@@ -97,16 +107,17 @@ export const getConversation = async (req, res) => {
 };
 
 // Add a message to a conversation
-export const addMessage = async (req, res) => {
+export const addMessage = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
     const { conversationId } = req.params;
+    const conversationIdStr = String(conversationId);
     const { content, role } = req.body;
 
     // Verify the conversation belongs to the user
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id: conversationId,
+        id: conversationIdStr,
         userId,
       },
     });
@@ -121,7 +132,7 @@ export const addMessage = async (req, res) => {
     // Create the message
     const message = await prisma.message.create({
       data: {
-        conversationId,
+        conversationId: conversationIdStr,
         content,
         role,
       },
@@ -129,7 +140,7 @@ export const addMessage = async (req, res) => {
 
     // Update conversation's updatedAt timestamp
     await prisma.conversation.update({
-      where: { id: conversationId },
+      where: { id: conversationIdStr },
       data: { updatedAt: new Date() },
     });
 
@@ -147,16 +158,17 @@ export const addMessage = async (req, res) => {
 };
 
 // Add multiple messages at once (for saving user + assistant pair)
-export const addMessages = async (req, res) => {
+export const addMessages = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
     const { conversationId } = req.params;
+    const conversationIdStr = String(conversationId);
     const { messages } = req.body;
 
     // Verify the conversation belongs to the user
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id: conversationId,
+        id: conversationIdStr,
         userId,
       },
     });
@@ -170,8 +182,8 @@ export const addMessages = async (req, res) => {
 
     // Create all messages
     const createdMessages = await prisma.message.createMany({
-      data: messages.map((msg) => ({
-        conversationId,
+      data: messages.map((msg: any) => ({
+        conversationId: conversationIdStr,
         content: msg.content,
         role: msg.role,
       })),
@@ -179,14 +191,14 @@ export const addMessages = async (req, res) => {
 
     // Update conversation's updatedAt timestamp and title if first messages
     const existingMessages = await prisma.message.count({
-      where: { conversationId },
+      where: { conversationId: conversationIdStr },
     });
 
-    const updateData = { updatedAt: new Date() };
+    const updateData: { updatedAt: Date; title?: string } = { updatedAt: new Date() };
 
     // Update title from first user message if it's still "New Reflection"
     if (conversation.title === "New Reflection" && messages.length > 0) {
-      const firstUserMessage = messages.find((m) => m.role === "user");
+      const firstUserMessage = messages.find((m: any) => m.role === "user");
       if (firstUserMessage) {
         const newTitle = firstUserMessage.content
           .replace(/[^\w\s]/gi, "")
@@ -199,7 +211,7 @@ export const addMessages = async (req, res) => {
     }
 
     await prisma.conversation.update({
-      where: { id: conversationId },
+      where: { id: conversationIdStr },
       data: updateData,
     });
 
@@ -217,15 +229,16 @@ export const addMessages = async (req, res) => {
 };
 
 // Update conversation title
-export const updateConversation = async (req, res) => {
+export const updateConversation = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
+    const idStr = String(id);
     const { title } = req.body;
 
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id,
+        id: idStr,
         userId,
       },
     });
@@ -238,7 +251,7 @@ export const updateConversation = async (req, res) => {
     }
 
     const updated = await prisma.conversation.update({
-      where: { id },
+      where: { id: idStr },
       data: { title },
     });
 
@@ -256,14 +269,15 @@ export const updateConversation = async (req, res) => {
 };
 
 // Delete a conversation
-export const deleteConversation = async (req, res) => {
+export const deleteConversation = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
+    const idStr = String(id);
 
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id,
+        id: idStr,
         userId,
       },
     });
@@ -277,7 +291,7 @@ export const deleteConversation = async (req, res) => {
 
     // Messages will be cascade deleted
     await prisma.conversation.delete({
-      where: { id },
+      where: { id: idStr },
     });
 
     res.status(200).json({
@@ -294,7 +308,7 @@ export const deleteConversation = async (req, res) => {
 };
 
 // Delete all conversations for a user
-export const deleteAllConversations = async (req, res) => {
+export const deleteAllConversations = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
 

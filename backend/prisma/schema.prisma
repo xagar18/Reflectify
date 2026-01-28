@@ -29,6 +29,7 @@ model User {
 
   // Relations
   conversations       Conversation[]
+  globalContexts      GlobalContext[]
 }
 
 model Conversation {
@@ -64,4 +65,20 @@ enum MessageRole {
 enum ConversationStatus {
   active
   archived
+}
+
+model GlobalContext {
+  id          String   @id @default(cuid())
+  key         String   // e.g., "name", "age", "occupation", "preferences"
+  value       String   @db.Text // The value for this context item
+  category    String?  // Optional category like "personal", "professional", "preferences"
+  isActive    Boolean  @default(true) // Allow disabling context items
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, key]) // One context item per key per user
+  @@index([userId])
+  @@index([category])
 }

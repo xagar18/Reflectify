@@ -1,7 +1,15 @@
 const MODEL_API_BASE_URL = "http://localhost:8001";
 
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
 export interface ReflectRequest {
   message: string;
+  context?: ChatMessage[]; // Previous messages for context
+  global_context?: string; // Global context string
+  user_id?: string; // User ID for fetching global context
 }
 
 export interface ReflectResponse {
@@ -9,14 +17,22 @@ export interface ReflectResponse {
 }
 
 export const modelService = {
-  async getReflection(message: string): Promise<string> {
+  async getReflection(
+    message: string,
+    context?: ChatMessage[],
+    globalContext?: string
+  ): Promise<string> {
     try {
       const response = await fetch(`${MODEL_API_BASE_URL}/api/v1/reflect`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+          message,
+          context: context || [],
+          global_context: globalContext || ""
+        }),
       });
 
       if (!response.ok) {

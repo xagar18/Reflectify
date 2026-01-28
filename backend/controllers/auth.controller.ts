@@ -1,29 +1,41 @@
 import axios from "axios";
-import bcrypt from "bcryptjs";
-import crypto from "crypto";
-import dotenev from "dotenv";
+import * as bcrypt from "bcryptjs";
+import * as crypto from "crypto";
+import * as dotenv from "dotenv";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
-import prisma from "../config/db.js";
+import { Request, Response } from "express";
+import prisma from "../prisma-client.js";
 import mailService from "../services/mailservice.js";
 
-dotenev.config();
+dotenv.config();
+
+// Extend Request interface to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 
 // register new user
-export const registerUser = async (req, res) => {
+export const registerUser = async (req: Request, res: Response) => {
   if (req.user) {
     const existingUser = await prisma.user.findUnique({
       where: { id: req.user.id },
     });
-    return res.status(200).json({
-      success: true,
-      message: "Login Successful.",
-      user: {
-        id: existingUser.id,
-        name: existingUser.name,
-        email: existingUser.email,
-      },
-    });
+    if (existingUser) {
+      return res.status(200).json({
+        success: true,
+        message: "Login Successful.",
+        user: {
+          id: existingUser.id,
+          name: existingUser.name,
+          email: existingUser.email,
+        },
+      });
+    }
   }
   const { name, email, password } = req.body;
 
@@ -79,7 +91,7 @@ export const registerUser = async (req, res) => {
 };
 
 // login
-export const loginUser = async (req, res) => {
+export const loginUser = async (req: Request, res: Response) => {
   console.log("start");
 
   // if cookie available
@@ -87,15 +99,17 @@ export const loginUser = async (req, res) => {
     const existingUser = await prisma.user.findUnique({
       where: { id: req.user.id },
     });
-    return res.status(200).json({
-      success: true,
-      message: "Login Successful.",
-      user: {
-        id: existingUser.id,
-        name: existingUser.name,
-        email: existingUser.email,
-      },
-    });
+    if (existingUser) {
+      return res.status(200).json({
+        success: true,
+        message: "Login Successful.",
+        user: {
+          id: existingUser.id,
+          name: existingUser.name,
+          email: existingUser.email,
+        },
+      });
+    }
   }
 
   const { email, password } = req.body;
@@ -139,14 +153,14 @@ export const loginUser = async (req, res) => {
     console.log("password checked");
 
     // creating jwt token
-    const jwtToken = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET, {
+    const jwtToken = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET!, {
       expiresIn: "10d",
     });
     console.log(jwtToken);
 
     console.log("token created");
 
-    const cookieOptions = {
+    const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Only secure in production
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Important for cross-origin
@@ -175,7 +189,7 @@ export const loginUser = async (req, res) => {
 };
 
 // Google Auth
-export const googleAuth = async (req, res) => {
+export const googleAuth = async (req: Request, res: Response) => {
   const { token } = req.body;
 
   if (!token) {
@@ -220,11 +234,11 @@ export const googleAuth = async (req, res) => {
     }
 
     // Create JWT token
-    const jwtToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    const jwtToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
       expiresIn: "10d",
     });
 
-    const cookieOptions = {
+    const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -252,7 +266,7 @@ export const googleAuth = async (req, res) => {
 };
 
 // Github Auth
-export const githubRedirect = (req, res) => {
+export const githubRedirect = (req: Request, res: Response) => {
   const url =
     "https://github.com/login/oauth/authorize" +
     `?client_id=${process.env.GITHUB_CLIENT_ID}` +
@@ -262,7 +276,7 @@ export const githubRedirect = (req, res) => {
   res.redirect(url);
 };
 
-export const githubCallback = async (req, res) => {
+export const githubCallback = async (req: Request, res: Response) => {
   const { code } = req.query;
   if (!code) return res.status(400).json({ message: "Code missing" });
 
@@ -291,7 +305,7 @@ export const githubCallback = async (req, res) => {
     });
 
     const email =
-      emailRes.data.find((e) => e.primary && e.verified)?.email ||
+      emailRes.data.find((e: any) => e.primary && e.verified)?.email ||
       `${userRes.data.id}@github.local`;
 
     // 4️⃣ Find or create user
@@ -309,7 +323,7 @@ export const githubCallback = async (req, res) => {
     }
 
     // 5️⃣ Generate JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
       expiresIn: "10d",
     });
 
@@ -329,7 +343,7 @@ export const githubCallback = async (req, res) => {
   }
 };
 
-export const profile = async (req, res) => {
+export const profile = async (req: Request, res: Response) => {
   console.log("profile", req.user);
   try {
     if (!req.user) {
@@ -361,7 +375,7 @@ export const profile = async (req, res) => {
   }
 };
 
-export const logoutUser = (req, res) => {
+export const logoutUser = (req: Request, res: Response) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
@@ -383,7 +397,7 @@ export const logoutUser = (req, res) => {
 };
 
 //send forgot pass mail
-export const forgotPassword = async (req, res) => {
+export const forgotPassword = async (req: Request, res: Response) => {
   console.log("forgot");
 
   const { email } = req.body;
@@ -439,9 +453,10 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-export const resetPassword = async (req, res) => {
+export const resetPassword = async (req: Request, res: Response) => {
   const { password } = req.body;
   const { token } = req.params;
+  const tokenStr = String(token);
 
   if (!password) {
     return res.status(401).json({
@@ -451,7 +466,7 @@ export const resetPassword = async (req, res) => {
   try {
     const userFound = await prisma.user.findFirst({
       where: {
-        passwordResetToken: token,
+        passwordResetToken: tokenStr,
         passwordResetExpiry: {
           gte: new Date(),
         },
@@ -498,17 +513,18 @@ export const resetPassword = async (req, res) => {
 };
 
 // verification
-export const verifyUser = async (req, res) => {
+export const verifyUser = async (req: Request, res: Response) => {
   const { token } = req.params;
+  const tokenStr = String(token);
 
-  if (!token) {
+  if (!tokenStr) {
     return res.status(400).json({
       message: "Invalid token",
     });
   }
 
   const user = await prisma.user.findFirst({
-    where: { verificationToken: token },
+    where: { verificationToken: tokenStr },
   });
 
   if (!user) {

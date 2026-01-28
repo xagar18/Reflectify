@@ -2,18 +2,21 @@ import {
   BarChart3,
   Eye,
   Languages,
+  MessageSquare,
   Monitor,
   Moon,
   Save,
   Settings as SettingsIcon,
   Shield,
   Sun,
+  type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Language, ThemeOption } from "../zustand/store";
+import type { Language, PrivacySettings, ThemeOption } from "../zustand/store";
 import useStore from "../zustand/store";
+import { globalContextService } from "../services/globalContextService";
 
-type SettingsTab = "general" | "privacy" | "languages";
+type SettingsTab = "general" | "privacy" | "languages" | "context";
 
 const LANGUAGES: { code: Language; name: string; native: string }[] = [
   { code: "en", name: "English", native: "English" },
@@ -57,10 +60,11 @@ function Settings() {
   const tabs: {
     id: SettingsTab;
     label: string;
-    icon: React.ComponentType<any>;
+    icon: LucideIcon;
   }[] = [
     { id: "general", label: "General", icon: SettingsIcon },
     { id: "privacy", label: "Privacy", icon: Shield },
+    { id: "context", label: "Context", icon: MessageSquare },
     { id: "languages", label: "Languages", icon: Languages },
   ];
 
@@ -145,6 +149,11 @@ function Settings() {
                 setPrivacySettings={setPrivacySettings}
               />
             )}
+            {activeTab === "context" && (
+              <ContextSettings
+                theme={theme}
+              />
+            )}
             {activeTab === "languages" && (
               <LanguageSettings
                 theme={theme}
@@ -172,7 +181,7 @@ function GeneralSettings({
   const themeOptions: {
     value: ThemeOption;
     label: string;
-    icon: React.ComponentType<any>;
+    icon: LucideIcon;
     description: string;
   }[] = [
     {
@@ -255,12 +264,8 @@ function PrivacySettingsPanel({
   setPrivacySettings,
 }: {
   theme: "dark" | "light";
-  privacySettings: {
-    saveHistory: boolean;
-    shareAnalytics: boolean;
-    showOnlineStatus: boolean;
-  };
-  setPrivacySettings: (settings: Partial<typeof privacySettings>) => void;
+  privacySettings: PrivacySettings;
+  setPrivacySettings: (settings: Partial<PrivacySettings>) => void;
 }) {
   const settings = [
     {
@@ -446,6 +451,201 @@ function LanguageSettings({
           <span className="font-medium">Note:</span> Language settings will be
           applied to the interface. Chat responses will continue to be in your
           preferred language based on how you communicate.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ========== Context Settings ========== */
+function ContextSettings({ theme }: { theme: "dark" | "light" }) {
+  const [contextItems, setContextItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [newKey, setNewKey] = useState("");
+  const [newValue, setNewValue] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+
+  // Load context items on mount
+  useEffect(() => {
+    loadContextItems();
+  }, []);
+
+  const loadContextItems = async () => {
+    try {
+      const items = await globalContextService.getGlobalContext();
+      setContextItems(items);
+    } catch (error) {
+      console.error("Error loading context items:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddContext = async () => {
+    if (!newKey.trim() || !newValue.trim()) return;
+
+    setIsAdding(true);
+    try {
+      await globalContextService.setGlobalContext(newKey.trim(), newValue.trim(), newCategory.trim() || undefined);
+      setNewKey("");
+      setNewValue("");
+      setNewCategory("");
+      await loadContextItems();
+    } catch (error) {
+      console.error("Error adding context:", error);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleDeleteContext = async (key: string) => {
+    if (!confirm("Are you sure you want to delete this context item?")) return;
+
+    try {
+      await globalContextService.deleteGlobalContext(key);
+      await loadContextItems();
+    } catch (error) {
+      console.error("Error deleting context:", error);
+    }
+  };
+
+  const categories = ["personal", "professional", "preferences", "health", "other"];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="mb-1 text-base font-semibold">Global Context</h3>
+          <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+            Loading your context items...
+          </p>
+        </div>
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="mb-1 text-base font-semibold">Global Context</h3>
+        <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+          Store important information that the AI can reference across all conversations.
+          This helps provide more personalized and relevant responses.
+        </p>
+      </div>
+
+      {/* Add new context item */}
+      <div className={`rounded-xl border p-4 ${theme === "dark" ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"}`}>
+        <h4 className="text-sm font-medium mb-3">Add Context Item</h4>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              placeholder="Key (e.g., name, age, occupation)"
+              value={newKey}
+              onChange={(e) => setNewKey(e.target.value)}
+              className={`px-3 py-2 rounded-lg text-sm border ${
+                theme === "dark"
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+              }`}
+            />
+            <select
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              className={`px-3 py-2 rounded-lg text-sm border ${
+                theme === "dark"
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              }`}
+            >
+              <option value="">Select category (optional)</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+              ))}
+            </select>
+          </div>
+          <textarea
+            placeholder="Value (e.g., John Doe, 28, Software Engineer)"
+            value={newValue}
+            onChange={(e) => setNewValue(e.target.value)}
+            rows={2}
+            className={`w-full px-3 py-2 rounded-lg text-sm border resize-none ${
+              theme === "dark"
+                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+            }`}
+          />
+          <button
+            onClick={handleAddContext}
+            disabled={isAdding || !newKey.trim() || !newValue.trim()}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              isAdding || !newKey.trim() || !newValue.trim()
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
+          >
+            {isAdding ? "Adding..." : "Add Context"}
+          </button>
+        </div>
+      </div>
+
+      {/* Existing context items */}
+      <div className={`rounded-xl border p-4 ${theme === "dark" ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"}`}>
+        <h4 className="text-sm font-medium mb-3">Your Context Items ({contextItems.length})</h4>
+        {contextItems.length === 0 ? (
+          <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+            No context items added yet. Add some information above to help the AI understand you better.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {contextItems.map((item) => (
+              <div
+                key={item.id}
+                className={`flex items-center justify-between p-3 rounded-lg border ${
+                  theme === "dark" ? "border-gray-600 bg-gray-700/50" : "border-gray-300 bg-white"
+                }`}
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-medium">{item.key}</span>
+                    {item.category && (
+                      <span className={`px-2 py-0.5 rounded text-xs ${
+                        theme === "dark" ? "bg-gray-600 text-gray-300" : "bg-gray-200 text-gray-700"
+                      }`}>
+                        {item.category}
+                      </span>
+                    )}
+                  </div>
+                  <p className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                    {item.value}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDeleteContext(item.key)}
+                  className={`ml-3 p-1 rounded transition-colors ${
+                    theme === "dark"
+                      ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
+                      : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+                  }`}
+                  title="Delete context item"
+                >
+                  🗑️
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className={`rounded-xl border p-4 ${theme === "dark" ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"}`}>
+        <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+          <span className="font-medium">Note:</span> Context items are used by the AI to provide more personalized responses.
+          They are stored securely and only accessible to you. Common examples include your name, age, occupation, preferences, or important life details.
         </p>
       </div>
     </div>

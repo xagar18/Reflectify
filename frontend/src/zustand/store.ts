@@ -1,5 +1,6 @@
 import axios from "axios";
 import { create } from "zustand";
+import { globalContextService } from "../services/globalContextService";
 
 // Theme type - now includes system option
 export type ThemeOption = "dark" | "light" | "system";
@@ -34,7 +35,9 @@ interface AuthState {
   language: Language; // Current language
   privacySettings: PrivacySettings; // Privacy settings
   isSettingsOpen: boolean; // Settings modal state
-  auth: (data: any) => void; // Function to set user data and mark as authenticated
+  globalContextVersion: number; // Version counter to trigger global context refresh
+  // Function to set user data and mark as authenticated
+  auth: (data: any) => Promise<void>; // Function to set user data and mark as authenticated
   logout: () => void; // Function to log out user by clearing data and authentication flag
   getProfile: () => Promise<void>; // Function to fetch user profile from backend
   toggleTheme: () => void; // Function to toggle between dark and light theme
@@ -43,6 +46,7 @@ interface AuthState {
   setPrivacySettings: (settings: Partial<PrivacySettings>) => void; // Function to update privacy settings
   openSettings: () => void; // Function to open settings modal
   closeSettings: () => void; // Function to close settings modal
+  refreshGlobalContext: () => void; // Function to trigger global context refresh
 }
 
 // Get system theme preference
@@ -109,8 +113,21 @@ const useStore = create<AuthState>(set => ({
   language: getInitialLanguage(), // Initial language
   privacySettings: getInitialPrivacySettings(), // Initial privacy settings
   isSettingsOpen: false, // Settings modal initially closed
+  globalContextVersion: 0, // Initial version for global context refresh trigger
   // Function to authenticate user by setting user data and authentication flag
-  auth: data => set({ userData: data, isAuthenticated: true }),
+  auth: async (data) => {
+    set({ userData: data, isAuthenticated: true });
+
+    // Automatically add user's name to global context if available
+    if (data.name) {
+      try {
+        await globalContextService.setGlobalContext("name", data.name, "personal");
+      } catch (error) {
+        console.error("Error adding user name to global context:", error);
+        // Don't fail authentication if this fails
+      }
+    }
+  },
   // Async function to fetch user profile from backend and update state
   getProfile: async () => {
     // Make GET request to backend profile endpoint
@@ -121,6 +138,16 @@ const useStore = create<AuthState>(set => ({
 
     // Update state with fetched user data and set authenticated to true
     set({ userData: response.data.user, isAuthenticated: true });
+
+    // Automatically add user's name to global context if available
+    if (response.data.user.name) {
+      try {
+        await globalContextService.setGlobalContext("name", response.data.user.name, "personal");
+      } catch (error) {
+        console.error("Error adding user name to global context:", error);
+        // Don't fail the profile loading if this fails
+      }
+    }
 
     // Debug log for user data (consider removing in production)
     console.log(response.data.user);
@@ -166,8 +193,15 @@ const useStore = create<AuthState>(set => ({
     }),
   // Open settings modal
   openSettings: () => set({ isSettingsOpen: true }),
-  // Close settings modal
-  closeSettings: () => set({ isSettingsOpen: false }),
+  // Close settings modal and trigger global context refresh
+  closeSettings: () => set((state) => ({
+    isSettingsOpen: false,
+    globalContextVersion: state.globalContextVersion + 1
+  })),
+  // Function to manually trigger global context refresh
+  refreshGlobalContext: () => set((state) => ({
+    globalContextVersion: state.globalContextVersion + 1
+  })),
 }));
 
 export default useStore;
