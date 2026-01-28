@@ -62,7 +62,7 @@ export const registerUser = async (req, res) => {
       mailService(
         newUser.email,
         "Verify your account",
-        `Click here to verify your account ${process.env.FRONTEND_URL}/verify-account/${verificationToken}`
+        `Click here to verify your account ${process.env.FRONTEND_URL}/verify-account/${verificationToken}`,
       );
       return res.status(200).json({
         success: true,
@@ -139,14 +139,9 @@ export const loginUser = async (req, res) => {
     console.log("password checked");
 
     // creating jwt token
-    const jwtToken = jwt.sign(
-      { id: existingUser.id },
-
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
-    );
+    const jwtToken = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET, {
+      expiresIn: "10d",
+    });
     console.log(jwtToken);
 
     console.log("token created");
@@ -155,7 +150,7 @@ export const loginUser = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Only secure in production
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Important for cross-origin
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days
     };
 
     res.cookie("token", jwtToken, cookieOptions);
@@ -202,7 +197,7 @@ export const googleAuth = async (req, res) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     const { id: googleId, email, name, picture } = userInfoResponse.data;
@@ -233,7 +228,7 @@ export const googleAuth = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 10000,
+      maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days
     };
 
     res.cookie("token", jwtToken, cookieOptions);
@@ -280,7 +275,7 @@ export const githubCallback = async (req, res) => {
         client_secret: process.env.GITHUB_CLIENT_SECRET,
         code,
       },
-      { headers: { Accept: "application/json" } }
+      { headers: { Accept: "application/json" } },
     );
 
     const accessToken = tokenRes.data.access_token;
@@ -291,10 +286,9 @@ export const githubCallback = async (req, res) => {
     });
 
     // 3️⃣ Fetch email
-    const emailRes = await axios.get(
-      "https://api.github.com/user/emails",
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
+    const emailRes = await axios.get("https://api.github.com/user/emails", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
     const email =
       emailRes.data.find((e) => e.primary && e.verified)?.email ||
@@ -315,29 +309,25 @@ export const githubCallback = async (req, res) => {
     }
 
     // 5️⃣ Generate JWT
-    const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "10d",
+    });
 
     // 6️⃣ Set cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 86400000,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days
     });
 
     // 7️⃣ Redirect to frontend
     return res.redirect(`${process.env.FRONTEND_URL}/oauth-success`);
-
   } catch (err) {
     console.error("GitHub Auth Error:", err);
     return res.status(500).json({ message: "GitHub auth failed" });
   }
 };
-
 
 export const profile = async (req, res) => {
   console.log("profile", req.user);
@@ -428,7 +418,7 @@ export const forgotPassword = async (req, res) => {
     mailService(
       userSave.email,
       "Reset Your Password",
-      `Click here to reset your password ${process.env.FRONTEND_URL}/reset-password/${randomToken}`
+      `Click here to reset your password ${process.env.FRONTEND_URL}/reset-password/${randomToken}`,
     );
 
     if (!userSave) {
