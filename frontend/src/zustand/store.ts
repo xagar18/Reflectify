@@ -62,10 +62,11 @@ const getSystemTheme = (): Theme => {
 // Get initial theme option from localStorage or default to system
 const getInitialThemeOption = (): ThemeOption => {
   if (typeof window !== "undefined") {
-    const saved = localStorage.getItem(
-      "reflectify-theme-option"
-    ) as ThemeOption;
-    if (saved) return saved;
+    const saved = localStorage.getItem("reflectify-theme-option");
+    // Validate saved value
+    if (saved && ["dark", "light", "system"].includes(saved)) {
+      return saved as ThemeOption;
+    }
   }
   return "system";
 };
@@ -79,8 +80,22 @@ const getAppliedTheme = (option: ThemeOption): Theme => {
 // Get initial language from localStorage
 const getInitialLanguage = (): Language => {
   if (typeof window !== "undefined") {
-    const saved = localStorage.getItem("reflectify-language") as Language;
-    if (saved) return saved;
+    const saved = localStorage.getItem("reflectify-language");
+    const validLanguages = [
+      "en",
+      "es",
+      "fr",
+      "de",
+      "zh",
+      "ja",
+      "ar",
+      "hi",
+      "pt",
+      "ru",
+    ];
+    if (saved && validLanguages.includes(saved)) {
+      return saved as Language;
+    }
   }
   return "en";
 };
@@ -115,13 +130,17 @@ const useStore = create<AuthState>(set => ({
   isSettingsOpen: false, // Settings modal initially closed
   globalContextVersion: 0, // Initial version for global context refresh trigger
   // Function to authenticate user by setting user data and authentication flag
-  auth: async (data) => {
+  auth: async data => {
     set({ userData: data, isAuthenticated: true });
 
     // Automatically add user's name to global context if available
     if (data.name) {
       try {
-        await globalContextService.setGlobalContext("name", data.name, "personal");
+        await globalContextService.setGlobalContext(
+          "name",
+          data.name,
+          "personal"
+        );
       } catch (error) {
         console.error("Error adding user name to global context:", error);
         // Don't fail authentication if this fails
@@ -142,7 +161,11 @@ const useStore = create<AuthState>(set => ({
     // Automatically add user's name to global context if available
     if (response.data.user.name) {
       try {
-        await globalContextService.setGlobalContext("name", response.data.user.name, "personal");
+        await globalContextService.setGlobalContext(
+          "name",
+          response.data.user.name,
+          "personal"
+        );
       } catch (error) {
         console.error("Error adding user name to global context:", error);
         // Don't fail the profile loading if this fails
@@ -194,14 +217,16 @@ const useStore = create<AuthState>(set => ({
   // Open settings modal
   openSettings: () => set({ isSettingsOpen: true }),
   // Close settings modal and trigger global context refresh
-  closeSettings: () => set((state) => ({
-    isSettingsOpen: false,
-    globalContextVersion: state.globalContextVersion + 1
-  })),
+  closeSettings: () =>
+    set(state => ({
+      isSettingsOpen: false,
+      globalContextVersion: state.globalContextVersion + 1,
+    })),
   // Function to manually trigger global context refresh
-  refreshGlobalContext: () => set((state) => ({
-    globalContextVersion: state.globalContextVersion + 1
-  })),
+  refreshGlobalContext: () =>
+    set(state => ({
+      globalContextVersion: state.globalContextVersion + 1,
+    })),
 }));
 
 export default useStore;

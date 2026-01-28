@@ -6,8 +6,11 @@ import MessageInput, { type AttachedFile } from "../components/MessageInput";
 import Settings from "../components/Settings";
 import Sidebar from "../components/Sidebar";
 import { chatService, type Conversation } from "../services/chatService";
+import {
+  globalContextService,
+  type GlobalContextItem,
+} from "../services/globalContextService";
 import { modelService, type ChatMessage } from "../services/modelService";
-import { globalContextService, type GlobalContextItem } from "../services/globalContextService";
 import useStore from "../zustand/store";
 
 /* ================= TYPES ================= */
@@ -81,7 +84,13 @@ function Home() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false); // Loading state for messages
   const [globalContext, setGlobalContext] = useState<GlobalContextItem[]>([]);
   const [isLoadingGlobalContext, setIsLoadingGlobalContext] = useState(false);
-  const { theme, isAuthenticated, privacySettings, userData, globalContextVersion } = useStore();
+  const {
+    theme,
+    isAuthenticated,
+    privacySettings,
+    userData,
+    globalContextVersion,
+  } = useStore();
 
   // 🔑 used ONLY to force input focus
   const [focusInputKey, setFocusInputKey] = useState(0);
@@ -149,19 +158,33 @@ function Home() {
         const chatsWithDates = parsedChats.map((chat: any) => ({
           ...chat,
           id: String(chat.id), // Ensure ID is string
-          messages: chat.messages.map((msg: any) => ({
-            ...msg,
-            timestamp: msg.timestamp ? new Date(msg.timestamp) : undefined,
-          })),
+          messages:
+            chat.messages?.map((msg: any) => ({
+              ...msg,
+              timestamp: msg.timestamp ? new Date(msg.timestamp) : undefined,
+            })) || [],
         }));
         setChats(chatsWithDates);
+
+        // Set active chat - validate it exists in loaded chats
+        if (
+          savedActiveChatId &&
+          chatsWithDates.some((c: any) => c.id === savedActiveChatId)
+        ) {
+          setActiveChatId(savedActiveChatId);
+        } else if (chatsWithDates.length > 0) {
+          // Fallback to first chat if saved active chat doesn't exist
+          setActiveChatId(chatsWithDates[0].id);
+        }
       } catch (error) {
         console.error("Error loading chats from localStorage:", error);
+        // Clear corrupted data
+        localStorage.removeItem("reflectify-chats");
+        localStorage.removeItem("reflectify-active-chat-id");
       }
-    }
-
-    if (savedActiveChatId) {
-      setActiveChatId(savedActiveChatId);
+    } else if (savedActiveChatId) {
+      // No chats but have an active ID - clear it
+      localStorage.removeItem("reflectify-active-chat-id");
     }
   };
 
@@ -190,12 +213,30 @@ function Home() {
     loadGlobalContext();
   }, [loadGlobalContext, globalContextVersion]);
 
-  // Save chats to localStorage whenever chats change
+  // Save chats to localStorage whenever chats change (only for non-authenticated users or when saveHistory is disabled)
   useEffect(() => {
-    if (chats.length > 0) {
-      localStorage.setItem("reflectify-chats", JSON.stringify(chats));
+    // Only save to localStorage for non-authenticated users or when saveHistory is disabled
+    if (!isAuthenticated || !privacySettings.saveHistory) {
+      if (chats.length > 0) {
+        localStorage.setItem("reflectify-chats", JSON.stringify(chats));
+      }
     }
-  }, [chats]);
+  }, [chats, isAuthenticated, privacySettings.saveHistory]);
+
+  // Save active chat ID to localStorage
+  useEffect(() => {
+    if (activeChatId) {
+      localStorage.setItem("reflectify-active-chat-id", activeChatId);
+    }
+  }, [activeChatId]);
+
+  // Clear localStorage chats when user logs in with saveHistory enabled (using database instead)
+  useEffect(() => {
+    if (isAuthenticated && privacySettings.saveHistory) {
+      // User is authenticated and saving to DB, clear local storage chats to avoid conflicts
+      localStorage.removeItem("reflectify-chats");
+    }
+  }, [isAuthenticated, privacySettings.saveHistory]);
 
   // Load sidebar state from localStorage
   useEffect(() => {
@@ -377,21 +418,15 @@ function Home() {
 
     // Get AI response (no artificial delays)
     (async () => {
-      // Build context from previous messages (respecting context limit from env)
+      // Build context from previous messages (model will limit if needed)
       const currentChatState = chats.find(c => c.id === currentActiveChatId);
       const contextMessages: ChatMessage[] = [];
-      const contextLimit = parseInt(
-        import.meta.env.VITE_CONTEXT_MESSAGE_LIMIT || "10",
-        10
-      );
 
-      if (currentChatState && contextLimit > 0) {
-        // Get the last N messages based on context limit (including the new user message)
-        const allMessages = [...currentChatState.messages, userMessage];
-        const startIndex = Math.max(0, allMessages.length - contextLimit);
-        const contextSlice = allMessages.slice(startIndex, -1); // Exclude the last message (current user message)
+      if (currentChatState) {
+        // Send last 10 messages as context - model will trim if configured to use less
+        const recentMessages = currentChatState.messages.slice(-10);
 
-        for (const msg of contextSlice) {
+        for (const msg of recentMessages) {
           contextMessages.push({
             role: msg.sender === "user" ? "user" : "assistant",
             content: msg.text,
@@ -399,9 +434,35 @@ function Home() {
         }
       }
 
+      // Fetch fresh global context before generating reply to ensure latest data
+      let currentGlobalContext = globalContext;
+      if (isAuthenticated) {
+        try {
+          currentGlobalContext = await globalContextService.getGlobalContext();
+          setGlobalContext(currentGlobalContext); // Update state with fresh data
+        } catch (error) {
+          console.error("Error fetching fresh global context:", error);
+          // Fall back to cached context
+        }
+      }
+
       // Generate contextual reply based on attachments
-      const formattedGlobalContext = globalContextService.formatGlobalContextForAI(globalContext);
-      let replyText = await modelService.getReflection(text, contextMessages, formattedGlobalContext);
+      const formattedGlobalContext =
+        globalContextService.formatGlobalContextForAI(currentGlobalContext);
+
+      // Debug log (remove in production)
+      console.log(
+        "📋 Sending global context to model:",
+        formattedGlobalContext
+          ? `${formattedGlobalContext.length} chars`
+          : "none"
+      );
+
+      let replyText = await modelService.getReflection(
+        text,
+        contextMessages,
+        formattedGlobalContext
+      );
       if (attachments && attachments.length > 0) {
         const imageCount = attachments.filter(a => a.type === "image").length;
         const fileCount = attachments.length - imageCount;
@@ -501,10 +562,8 @@ function Home() {
 
   return (
     <div
-      className={`flex h-screen w-screen transition-colors duration-300 ${
-        theme === "dark"
-          ? "bg-linear-to-b from-gray-900 to-black text-white"
-          : "bg-linear-to-b from-gray-50 to-white text-gray-900"
+      className={`flex h-screen w-screen ${
+        theme === "dark" ? "bg-gray-950 text-white" : "bg-gray-50 text-gray-900"
       }`}
     >
       <Sidebar
@@ -519,41 +578,25 @@ function Home() {
       />
 
       <main className="relative flex min-w-0 flex-1 flex-col">
-        {/* Header with logo, Reflectify text, and hamburger */}
-        <div className="absolute top-3 left-3 z-20 flex items-center gap-3 sm:top-4 sm:left-4">
-          {/* Hamburger button - hidden on desktop when sidebar is open */}
-          <div className={`group relative ${isSidebarOpen ? "md:hidden" : ""}`}>
+        {/* Header */}
+        <div className="absolute top-4 left-4 z-20 flex items-center gap-3">
+          {!isSidebarOpen && (
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className={`flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9 ${
+              className={`rounded-lg p-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                  : "bg-white text-gray-600 shadow-md hover:bg-gray-100"
+                  ? "text-gray-400 hover:bg-gray-800 hover:text-white"
+                  : "text-gray-500 hover:bg-gray-200"
               }`}
             >
-              <PanelRight />
+              <PanelRight className="h-5 w-5" />
             </button>
-            <div
-              className={`absolute top-1/2 left-full ml-2 -translate-y-1/2 rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 ${
-                theme === "dark"
-                  ? "bg-black text-white"
-                  : "bg-gray-800 text-white"
-              }`}
-            >
-              Open sidebar
-            </div>
-          </div>
-          {/* Logo + Reflectify text - always visible */}
-          <div className="flex items-center gap-2">
-            <span className="text-lg"></span>
-            <span
-              className={`text-lg font-semibold ${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              }`}
-            >
-              Reflectify
-            </span>
-          </div>
+          )}
+          <span
+            className={`font-semibold ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
+          >
+            Reflectify
+          </span>
         </div>
 
         <ChatArea
@@ -562,7 +605,11 @@ function Home() {
           isLoadingMessages={isLoadingMessages}
         />
 
-        <MessageInput onSend={handleSend} autoFocusTrigger={focusInputKey} />
+        <MessageInput
+          onSend={handleSend}
+          autoFocusTrigger={focusInputKey}
+          disabled={typingChatId === activeChatId}
+        />
       </main>
 
       {/* Settings Modal */}

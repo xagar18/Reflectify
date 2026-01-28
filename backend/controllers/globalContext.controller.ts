@@ -21,7 +21,7 @@ export const getGlobalContext = async (req: Request, res: Response) => {
         isActive: true,
       },
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
 
@@ -44,18 +44,29 @@ export const setGlobalContext = async (req: Request, res: Response) => {
     const userId = req.user.id;
     const { key, value, category } = req.body;
 
-    if (!key || !value) {
+    if (!key || typeof key !== "string" || !key.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Key and value are required",
+        message: "Key is required and must be a non-empty string",
       });
     }
 
-    // Validate key format (alphanumeric, underscore, dash only)
-    if (!/^[a-zA-Z0-9_-]+$/.test(key)) {
+    if (!value || typeof value !== "string" || !value.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Key can only contain letters, numbers, underscores, and dashes",
+        message: "Value is required and must be a non-empty string",
+      });
+    }
+
+    const trimmedKey = key.trim();
+    const trimmedValue = value.trim();
+
+    // Validate key format (alphanumeric, underscore, dash only)
+    if (!/^[a-zA-Z0-9_-]+$/.test(trimmedKey)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Key can only contain letters, numbers, underscores, and dashes",
       });
     }
 
@@ -63,21 +74,23 @@ export const setGlobalContext = async (req: Request, res: Response) => {
       where: {
         userId_key: {
           userId,
-          key,
+          key: trimmedKey,
         },
       },
       update: {
-        value,
-        category: category || null,
+        value: trimmedValue,
+        category: category?.trim() || null,
         isActive: true,
       },
       create: {
         userId,
-        key,
-        value,
-        category: category || null,
+        key: trimmedKey,
+        value: trimmedValue,
+        category: category?.trim() || null,
       },
     });
+
+    console.log(`✅ Global context saved for user ${userId}: ${trimmedKey}`);
 
     return res.status(200).json({
       success: true,
@@ -147,14 +160,14 @@ export const getGlobalContextForAI = async (userId: string) => {
         isActive: true,
       },
       orderBy: {
-        category: 'asc',
+        category: "asc",
       },
     });
 
     // Group by category and format for AI
     const contextByCategory: { [key: string]: string[] } = {};
-    globalContexts.forEach(item => {
-      const category = item.category || 'general';
+    globalContexts.forEach((item) => {
+      const category = item.category || "general";
       if (!contextByCategory[category]) {
         contextByCategory[category] = [];
       }
@@ -162,18 +175,18 @@ export const getGlobalContextForAI = async (userId: string) => {
     });
 
     // Format as readable text
-    let formattedContext = '';
-    Object.keys(contextByCategory).forEach(category => {
+    let formattedContext = "";
+    Object.keys(contextByCategory).forEach((category) => {
       formattedContext += `${category.toUpperCase()}:\n`;
-      contextByCategory[category].forEach(item => {
+      contextByCategory[category].forEach((item) => {
         formattedContext += `- ${item}\n`;
       });
-      formattedContext += '\n';
+      formattedContext += "\n";
     });
 
     return formattedContext.trim();
   } catch (error) {
     console.error("Error getting global context for AI:", error);
-    return '';
+    return "";
   }
 };

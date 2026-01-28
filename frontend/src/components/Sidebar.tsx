@@ -48,9 +48,9 @@ function Sidebar({
         />
       )}
       <aside
-        className={`flex h-screen flex-col transition-all duration-300 ${isOpen ? "w-64 sm:w-72 md:w-68" : "w-0 overflow-hidden"} fixed z-50 md:relative md:z-auto ${
+        className={`flex h-screen flex-col transition-all duration-300 ${isOpen ? "w-64" : "w-0 overflow-hidden"} fixed z-50 md:relative md:z-auto ${
           theme === "dark"
-            ? "border-r border-gray-700 bg-gray-900"
+            ? "border-r border-gray-800 bg-gray-900"
             : "border-r border-gray-200 bg-white"
         }`}
       >
@@ -63,44 +63,29 @@ function Sidebar({
           }`}
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🌱</span>
-              <h2
-                className={`text-lg font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-              ></h2>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <div className="group relative">
-                <button
-                  onClick={onToggle}
-                  className={`flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
-                    theme === "dark"
-                      ? "text-gray-400 hover:bg-gray-700 hover:text-white"
-                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                  }`}
-                >
-                  <PanelRight />
-                </button>
-                <div
-                  className={`absolute top-full left-1/2 mt-2 -translate-x-1/2 rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 ${
-                    theme === "dark"
-                      ? "bg-black text-white"
-                      : "bg-gray-800 text-white"
-                  }`}
-                >
-                  Close sidebar
-                </div>
-              </div>
-            </div>
+            <span
+              className={`font-semibold ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
+            >
+              Reflectify
+            </span>
+            <button
+              onClick={onToggle}
+              className={`rounded-lg p-2 ${
+                theme === "dark"
+                  ? "text-gray-400 hover:bg-gray-800 hover:text-white"
+                  : "text-gray-500 hover:bg-gray-200"
+              }`}
+            >
+              <PanelRight className="h-4 w-4" />
+            </button>
           </div>
 
           <button
             onClick={onNewChat}
-            className={`w-full rounded px-3 py-2 transition ${
+            className={`w-full rounded-lg px-3 py-2 font-medium transition ${
               theme === "dark"
-                ? "bg-gray-700 text-white hover:bg-gray-600"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-emerald-600 text-white hover:bg-emerald-500"
+                : "bg-emerald-500 text-white hover:bg-emerald-600"
             }`}
           >
             + New Reflection
@@ -111,7 +96,7 @@ function Sidebar({
             placeholder="Search chats"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className={`w-full rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 ${
               theme === "dark"
                 ? "bg-gray-800 text-white placeholder-gray-400"
                 : "border border-gray-200 bg-gray-100 text-gray-900 placeholder-gray-500"

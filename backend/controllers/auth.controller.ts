@@ -71,10 +71,28 @@ export const registerUser = async (req: Request, res: Response) => {
     if (newUser) {
       console.log("User Registered Successfully.");
 
+      const verifyUrl = `${process.env.FRONTEND_URL}/verify-account/${verificationToken}`;
       mailService(
         newUser.email,
-        "Verify your account",
-        `Click here to verify your account ${process.env.FRONTEND_URL}/verify-account/${verificationToken}`,
+        "Welcome to Reflectify - Verify Your Account",
+        `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0f0f0f;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #10b981; font-size: 28px; margin: 0;">Reflectify</h1>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 5px;">Your AI Companion for Self-Reflection</p>
+          </div>
+          <div style="background-color: #1a1a1a; border-radius: 12px; padding: 30px; border: 1px solid #2a2a2a;">
+            <h2 style="color: #ffffff; font-size: 22px; margin: 0 0 15px 0;">Welcome aboard! 👋</h2>
+            <p style="color: #9ca3af; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">Thank you for signing up. Please verify your email address to get started with your self-reflection journey.</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verifyUrl}" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 600; font-size: 16px;">Verify My Account</a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; margin: 25px 0 0 0;">Or copy this link:</p>
+            <p style="color: #10b981; font-size: 13px; word-break: break-all; background-color: #0f0f0f; padding: 12px; border-radius: 6px; margin-top: 8px;">${verifyUrl}</p>
+          </div>
+          <p style="color: #4b5563; font-size: 12px; text-align: center; margin-top: 30px;">If you didn't create this account, you can safely ignore this email.</p>
+        </div>
+        `,
       );
       return res.status(200).json({
         success: true,
@@ -429,10 +447,29 @@ export const forgotPassword = async (req: Request, res: Response) => {
       },
     });
     console.log("after save");
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${randomToken}`;
     mailService(
       userSave.email,
-      "Reset Your Password",
-      `Click here to reset your password ${process.env.FRONTEND_URL}/reset-password/${randomToken}`,
+      "Reset Your Reflectify Password",
+      `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0f0f0f;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #10b981; font-size: 28px; margin: 0;">Reflectify</h1>
+          <p style="color: #6b7280; font-size: 14px; margin-top: 5px;">Your AI Companion for Self-Reflection</p>
+        </div>
+        <div style="background-color: #1a1a1a; border-radius: 12px; padding: 30px; border: 1px solid #2a2a2a;">
+          <h2 style="color: #ffffff; font-size: 22px; margin: 0 0 15px 0;">Password Reset Request 🔐</h2>
+          <p style="color: #9ca3af; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">We received a request to reset your password. Click the button below to create a new password.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 600; font-size: 16px;">Reset Password</a>
+          </div>
+          <p style="color: #6b7280; font-size: 14px; margin: 25px 0 0 0;">Or copy this link:</p>
+          <p style="color: #10b981; font-size: 13px; word-break: break-all; background-color: #0f0f0f; padding: 12px; border-radius: 6px; margin-top: 8px;">${resetUrl}</p>
+          <p style="color: #ef4444; font-size: 13px; margin-top: 20px;">⏰ This link expires in 48 hours.</p>
+        </div>
+        <p style="color: #4b5563; font-size: 12px; text-align: center; margin-top: 30px;">If you didn't request this, you can safely ignore this email. Your password won't change.</p>
+      </div>
+      `,
     );
 
     if (!userSave) {

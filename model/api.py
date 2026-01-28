@@ -9,7 +9,7 @@ app = FastAPI(title="Reflectify Model API", version="1.0.0")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Frontend URLs
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],  # Frontend URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,6 +27,7 @@ class ReflectRequest(BaseModel):
 
 class ReflectResponse(BaseModel):
     response: str
+    debug_info: Optional[dict] = None
 
 @app.post("/api/v1/reflect", response_model=ReflectResponse)
 async def get_reflection(request: ReflectRequest):
@@ -38,14 +39,35 @@ async def get_reflection(request: ReflectRequest):
         context_messages = []
         if request.context:
             for msg in request.context:
-                context_messages.append({
-                    "role": msg.role,
-                    "content": msg.content
-                })
+                if msg.content.strip():  # Only add non-empty messages
+                    context_messages.append({
+                        "role": msg.role,
+                        "content": msg.content
+                    })
 
-        response = reflect(request.message, context_messages, request.global_context or "")
-        return ReflectResponse(response=response)
+        # Clean and validate global context
+        global_ctx = (request.global_context or "").strip()
+
+        # Debug logging
+        print(f"📨 Received request:")
+        print(f"   Message: {request.message[:50]}{'...' if len(request.message) > 50 else ''}")
+        print(f"   Context messages: {len(context_messages)}")
+        print(f"   Global context: {len(global_ctx)} chars")
+        if global_ctx:
+            print(f"   Global context preview: {global_ctx[:100]}{'...' if len(global_ctx) > 100 else ''}")
+
+        response = reflect(request.message, context_messages, global_ctx)
+
+        return ReflectResponse(
+            response=response,
+            debug_info={
+                "context_messages_count": len(context_messages),
+                "global_context_length": len(global_ctx),
+                "has_global_context": bool(global_ctx)
+            }
+        )
     except Exception as e:
+        print(f"❌ Error in get_reflection: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating reflection: {str(e)}")
 
 @app.get("/health")

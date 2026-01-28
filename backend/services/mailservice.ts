@@ -3,23 +3,23 @@ import * as nodemailer from "nodemailer";
 
 dotenv.config();
 
-async function mailService(to: string, subject: string, text: string): Promise<void> {
+async function mailService(to: string, subject: string, html: string): Promise<void> {
   console.log("mail services called");
-  console.log(process.env.MAILTRAP_HOST);
   const transporter = nodemailer.createTransport({
-    host: process.env.MAILTRAP_HOST,
-    port: process.env.MAILTRAP_PORT,
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: false,
     auth: {
-      user: process.env.MAILTRAP_USERNAME,
-      pass: process.env.MAILTRAP_PASSWORD,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   } as any);
 
   const mailOptions = {
-    from: process.env.MAILTRAP_SENDEREMAIL,
+    from: `"Reflectify" <${process.env.SMTP_FROM}>`,
     to,
     subject,
-    text,
+    html,
   };
   try {
     await transporter.sendMail(mailOptions);

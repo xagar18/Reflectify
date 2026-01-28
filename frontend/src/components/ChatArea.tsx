@@ -1,4 +1,3 @@
-import { Copy } from "lucide-react";
 import { useEffect, useRef } from "react";
 import useStore from "../zustand/store";
 import type { AttachedFile } from "./MessageInput";
@@ -54,21 +53,15 @@ function ChatArea({ messages, isTyping, isLoadingMessages }: ChatAreaProps) {
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center gap-1">
             <span
-              className={`h-3 w-3 animate-bounce rounded-full ${
-                theme === "dark" ? "bg-gray-400" : "bg-gray-500"
-              }`}
+              className="h-3 w-3 animate-bounce rounded-full bg-emerald-500"
               style={{ animationDelay: "0ms" }}
             ></span>
             <span
-              className={`h-3 w-3 animate-bounce rounded-full ${
-                theme === "dark" ? "bg-gray-400" : "bg-gray-500"
-              }`}
+              className="h-3 w-3 animate-bounce rounded-full bg-emerald-500"
               style={{ animationDelay: "150ms" }}
             ></span>
             <span
-              className={`h-3 w-3 animate-bounce rounded-full ${
-                theme === "dark" ? "bg-gray-400" : "bg-gray-500"
-              }`}
+              className="h-3 w-3 animate-bounce rounded-full bg-emerald-500"
               style={{ animationDelay: "300ms" }}
             ></span>
           </div>
@@ -83,16 +76,17 @@ function ChatArea({ messages, isTyping, isLoadingMessages }: ChatAreaProps) {
   // Empty state
   if (messages.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center p-4 text-center">
-        <div>
-          <h2
-            className={`mb-2 text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+      <div className="flex h-full items-center justify-center p-4">
+        <div className="max-w-md text-center">
+          <p
+            className={`mb-1 text-lg font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
           >
-            Welcome to Reflectify ✨
-          </h2>
-          <p className={theme === "dark" ? "text-gray-400" : "text-gray-600"}>
-            This is a safe space to pause, reflect, and gently understand your
-            thoughts.
+            Start a conversation
+          </p>
+          <p
+            className={`text-sm ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}
+          >
+            Share what's on your mind
           </p>
         </div>
       </div>
@@ -110,20 +104,19 @@ function ChatArea({ messages, isTyping, isLoadingMessages }: ChatAreaProps) {
     >
       <div className="mx-auto max-w-4xl p-4 sm:p-6 md:p-8">
         <div className="space-y-4 sm:space-y-6">
-          {messages.map((msg, index) => (
+          {messages.map(msg => (
             <div
               key={msg.id}
-              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} animate-in slide-in-from-bottom-2 duration-300`}
-              style={{ animationDelay: `${index * 50}ms` }}
+              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
             >
               <div className="group inline-block max-w-[85%] sm:max-w-[75%] md:max-w-[70%]">
                 {/* Message bubble */}
                 <div
                   className={`inline-block rounded-2xl px-4 py-2.5 transition-all duration-200 ${
                     msg.sender === "user"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-emerald-600 text-white"
                       : theme === "dark"
-                        ? "bg-gray-700 text-gray-100"
+                        ? "bg-gray-800 text-gray-100"
                         : "bg-gray-100 text-gray-900"
                   }`}
                 >
@@ -197,63 +190,40 @@ function ChatArea({ messages, isTyping, isLoadingMessages }: ChatAreaProps) {
 
                 {/* Timestamp */}
                 <div
-                  className={`px-1 text-xs ${
-                    theme === "dark" ? "text-gray-500" : "text-gray-400"
+                  className={`mt-1 px-1 text-xs ${
+                    theme === "dark" ? "text-gray-600" : "text-gray-400"
                   } ${msg.sender === "user" ? "text-right" : "text-left"}`}
                 >
                   {msg.timestamp
                     ? formatTime(msg.timestamp)
                     : formatTime(new Date())}
                 </div>
-
-                {/* Copy button - only for user messages */}
-                {msg.sender === "user" && (
-                  <div className="flex justify-end opacity-0 transition-all duration-200 group-hover:opacity-100">
-                    <button
-                      onClick={() => handleCopyMessage(msg.text)}
-                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-200 ${
-                        theme === "dark"
-                          ? "text-gray-400 hover:bg-gray-700 hover:text-white"
-                          : "text-gray-500 hover:bg-gray-200 hover:text-gray-800"
-                      }`}
-                      title="Copy message"
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                      Copy
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           ))}
 
           {/* Typing indicator */}
           {isTyping && (
-            <div className="animate-in slide-in-from-bottom-2 flex justify-start duration-300">
+            <div className="flex justify-start">
               <div
-                className={`inline-block rounded-2xl px-4 py-3 ${
+                className={`inline-flex items-center gap-2 rounded-2xl px-4 py-3 ${
                   theme === "dark"
-                    ? "bg-gray-700 text-gray-100"
-                    : "bg-gray-100 text-gray-900"
+                    ? "bg-gray-800 text-gray-400"
+                    : "bg-gray-100 text-gray-500"
                 }`}
               >
-                <div className="flex items-center gap-1">
+                <span className="animate-pulse text-sm">typing</span>
+                <div className="flex items-center gap-0.5">
                   <span
-                    className={`h-2 w-2 animate-bounce rounded-full ${
-                      theme === "dark" ? "bg-gray-400" : "bg-gray-500"
-                    }`}
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500"
                     style={{ animationDelay: "0ms" }}
                   ></span>
                   <span
-                    className={`h-2 w-2 animate-bounce rounded-full ${
-                      theme === "dark" ? "bg-gray-400" : "bg-gray-500"
-                    }`}
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500"
                     style={{ animationDelay: "150ms" }}
                   ></span>
                   <span
-                    className={`h-2 w-2 animate-bounce rounded-full ${
-                      theme === "dark" ? "bg-gray-400" : "bg-gray-500"
-                    }`}
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500"
                     style={{ animationDelay: "300ms" }}
                   ></span>
                 </div>

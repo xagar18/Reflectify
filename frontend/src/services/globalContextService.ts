@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const API_BASE_URL =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
 export interface GlobalContextItem {
   id: string;
@@ -70,27 +71,50 @@ export const globalContextService = {
       return "";
     }
 
+    // Filter only active items
+    const activeItems = contextItems.filter(item => item.isActive);
+
+    if (activeItems.length === 0) {
+      return "";
+    }
+
     // Group by category
     const contextByCategory: { [key: string]: string[] } = {};
 
-    contextItems.forEach((item) => {
+    activeItems.forEach(item => {
       const category = item.category || "general";
       if (!contextByCategory[category]) {
         contextByCategory[category] = [];
       }
+      // Use clearer formatting
       contextByCategory[category].push(`${item.key}: ${item.value}`);
     });
 
-    // Format as readable text
-    let formattedContext = "";
-    Object.keys(contextByCategory).forEach((category) => {
-      formattedContext += `${category.toUpperCase()}:\n`;
-      contextByCategory[category].forEach((item) => {
-        formattedContext += `- ${item}\n`;
-      });
-      formattedContext += "\n";
+    // Format as readable text with clear structure
+    const lines: string[] = [];
+
+    // Order categories: personal first, then others
+    const categoryOrder = [
+      "personal",
+      "professional",
+      "preferences",
+      "health",
+      "general",
+      "other",
+    ];
+    const sortedCategories = Object.keys(contextByCategory).sort((a, b) => {
+      const aIndex = categoryOrder.indexOf(a.toLowerCase());
+      const bIndex = categoryOrder.indexOf(b.toLowerCase());
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
     });
 
-    return formattedContext.trim();
+    sortedCategories.forEach(category => {
+      lines.push(`[${category.toUpperCase()}]`);
+      contextByCategory[category].forEach(item => {
+        lines.push(`• ${item}`);
+      });
+    });
+
+    return lines.join("\n");
   },
 };

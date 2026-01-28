@@ -40,13 +40,13 @@ export default function ChatRow({
   return (
     <div
       onClick={!isEditing ? onSelect : undefined}
-      className={`group flex cursor-pointer items-center justify-between rounded px-3 py-2 transition-colors ${
+      className={`group flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 transition-colors ${
         theme === "dark"
           ? isActive
-            ? "bg-gray-700"
-            : "hover:bg-gray-700"
+            ? "bg-emerald-600/20 text-emerald-400"
+            : "hover:bg-gray-800"
           : isActive
-            ? "bg-blue-50 text-blue-700"
+            ? "bg-emerald-50 text-emerald-700"
             : "hover:bg-gray-100"
       }`}
     >

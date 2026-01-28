@@ -14,6 +14,11 @@ export interface ReflectRequest {
 
 export interface ReflectResponse {
   response: string;
+  debug_info?: {
+    context_messages_count: number;
+    global_context_length: number;
+    has_global_context: boolean;
+  };
 }
 
 export const modelService = {
@@ -23,6 +28,18 @@ export const modelService = {
     globalContext?: string
   ): Promise<string> {
     try {
+      // Filter out empty messages from context
+      const cleanContext = context?.filter(msg => msg.content?.trim()) || [];
+
+      // Clean global context
+      const cleanGlobalContext = globalContext?.trim() || "";
+
+      console.log("🚀 Calling model API with:", {
+        message: message.substring(0, 50) + (message.length > 50 ? "..." : ""),
+        contextLength: cleanContext.length,
+        globalContextLength: cleanGlobalContext.length,
+      });
+
       const response = await fetch(`${MODEL_API_BASE_URL}/api/v1/reflect`, {
         method: "POST",
         headers: {
@@ -30,16 +47,24 @@ export const modelService = {
         },
         body: JSON.stringify({
           message,
-          context: context || [],
-          global_context: globalContext || ""
+          context: cleanContext,
+          global_context: cleanGlobalContext,
         }),
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Model API error:", response.status, errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data: ReflectResponse = await response.json();
+
+      // Debug log
+      if (data.debug_info) {
+        console.log("✅ Model response received:", data.debug_info);
+      }
+
       return data.response;
     } catch (error) {
       console.error("Error calling model API:", error);

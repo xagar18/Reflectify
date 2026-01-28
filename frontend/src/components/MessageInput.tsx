@@ -11,9 +11,14 @@ export type AttachedFile = {
 type MessageInputProps = {
   onSend: (text: string, attachments?: AttachedFile[]) => void;
   autoFocusTrigger?: number;
+  disabled?: boolean;
 };
 
-function MessageInput({ onSend, autoFocusTrigger }: MessageInputProps) {
+function MessageInput({
+  onSend,
+  autoFocusTrigger,
+  disabled,
+}: MessageInputProps) {
   const { theme } = useStore();
   const [input, setInput] = useState("");
   const [attachments, setAttachments] = useState<AttachedFile[]>([]);
@@ -59,6 +64,7 @@ function MessageInput({ onSend, autoFocusTrigger }: MessageInputProps) {
   }, [autoFocusTrigger]);
 
   const handleSend = () => {
+    if (disabled) return;
     if (!input.trim() && attachments.length === 0) return;
     onSend(input, attachments.length > 0 ? attachments : undefined);
     setInput("");
@@ -211,26 +217,25 @@ function MessageInput({ onSend, autoFocusTrigger }: MessageInputProps) {
         <div className="relative">
           {/* Combined Input Container */}
           <div
-            className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 shadow-lg backdrop-blur-sm transition-all focus-within:border-blue-500/50 focus-within:shadow-xl focus-within:ring-2 focus-within:ring-blue-500/20 sm:px-3 sm:py-2 ${
+            className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${
               theme === "dark"
-                ? "border-gray-600/50 bg-gray-800/80 focus-within:bg-gray-700/80"
-                : "border-gray-300/50 bg-white/80 focus-within:bg-gray-50/80"
+                ? "border-gray-800 bg-gray-900"
+                : "border-gray-200 bg-white"
             }`}
           >
             {/* Left side buttons */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center">
               {/* File Attachment Button */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className={`group flex h-7 w-7 items-center justify-center rounded-xl transition-all sm:h-8 sm:w-8 ${
+                className={`rounded-lg p-2 ${
                   theme === "dark"
-                    ? "text-gray-400 hover:bg-gray-700/80 hover:text-blue-400"
-                    : "text-gray-500 hover:bg-gray-200/80 hover:text-blue-500"
+                    ? "text-gray-500 hover:text-gray-300"
+                    : "text-gray-400 hover:text-gray-600"
                 }`}
-                title="Attach file"
               >
                 <svg
-                  className="h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5"
+                  className="h-5 w-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -259,13 +264,11 @@ function MessageInput({ onSend, autoFocusTrigger }: MessageInputProps) {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleSend()}
-              placeholder={
-                isListening ? "🎤 Listening..." : "Share your thoughts..."
-              }
-              className={`flex-1 bg-transparent text-sm transition-colors outline-none sm:text-base ${
+              placeholder={isListening ? "Listening..." : "Message..."}
+              className={`flex-1 bg-transparent text-sm outline-none ${
                 theme === "dark"
-                  ? "text-white placeholder:text-gray-400 focus:placeholder:text-gray-500"
-                  : "text-gray-900 placeholder:text-gray-500 focus:placeholder:text-gray-400"
+                  ? "text-white placeholder:text-gray-500"
+                  : "text-gray-900 placeholder:text-gray-400"
               }`}
             />
 
@@ -275,17 +278,16 @@ function MessageInput({ onSend, autoFocusTrigger }: MessageInputProps) {
               {voiceSupported && (
                 <button
                   onClick={toggleVoice}
-                  className={`group flex h-7 w-7 items-center justify-center rounded-xl transition-all sm:h-8 sm:w-8 ${
+                  className={`rounded-lg p-2 ${
                     isListening
-                      ? "animate-pulse bg-red-500/20 text-red-400 ring-2 ring-red-500/50"
+                      ? "text-red-400"
                       : theme === "dark"
-                        ? "text-gray-400 hover:bg-gray-700/80 hover:text-green-400"
-                        : "text-gray-500 hover:bg-gray-200/80 hover:text-green-500"
+                        ? "text-gray-500 hover:text-gray-300"
+                        : "text-gray-400 hover:text-gray-600"
                   }`}
-                  title={isListening ? "Stop listening" : "Voice input"}
                 >
                   <svg
-                    className="h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5"
+                    className="h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -303,11 +305,13 @@ function MessageInput({ onSend, autoFocusTrigger }: MessageInputProps) {
               {/* Send Button */}
               <button
                 onClick={handleSend}
-                disabled={!input.trim() && attachments.length === 0}
-                className="group flex h-8 w-8 items-center justify-center rounded-xl bg-linear-to-r from-blue-600 to-blue-700 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-500 hover:to-blue-600 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:from-blue-600 disabled:hover:to-blue-700 sm:h-9 sm:w-9"
+                disabled={
+                  disabled || (!input.trim() && attachments.length === 0)
+                }
+                className="rounded-lg bg-emerald-600 p-2 text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <svg
-                  className="h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5"
+                  className="h-5 w-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
