@@ -32,7 +32,7 @@ function Sidebar({
 }: SidebarProps) {
   const [search, setSearch] = useState("");
   const [showChats, setShowChats] = useState(true);
-  const { theme } = useStore();
+  const { theme, isAuthenticated } = useStore();
 
   const filteredChats = chats.filter(chat =>
     chat.title.toLowerCase().includes(search.toLowerCase())
@@ -149,16 +149,18 @@ function Sidebar({
           )}
         </div>
 
-        {/* ===== PROFILE (FIXED BOTTOM) ===== */}
-        <div
-          className={`shrink-0 p-3 ${
-            theme === "dark"
-              ? "border-t border-gray-700"
-              : "border-t border-gray-200"
-          }`}
-        >
-          <ProfileMenu />
-        </div>
+        {/* ===== PROFILE (FIXED BOTTOM) - Only for authenticated users ===== */}
+        {isAuthenticated && (
+          <div
+            className={`shrink-0 p-3 ${
+              theme === "dark"
+                ? "border-t border-gray-700"
+                : "border-t border-gray-200"
+            }`}
+          >
+            <ProfileMenu />
+          </div>
+        )}
       </aside>
     </>
   );

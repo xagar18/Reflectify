@@ -1,7 +1,9 @@
 import { PanelRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import type { Message } from "../components/ChatArea";
 import ChatArea from "../components/ChatArea";
+import GuestLimitBanner from "../components/GuestLimitBanner";
 import MessageInput, { type AttachedFile } from "../components/MessageInput";
 import Settings from "../components/Settings";
 import Sidebar from "../components/Sidebar";
@@ -10,6 +12,7 @@ import {
   globalContextService,
   type GlobalContextItem,
 } from "../services/globalContextService";
+import { guestRateLimitService } from "../services/guestRateLimitService";
 import { modelService, type ChatMessage } from "../services/modelService";
 import useStore from "../zustand/store";
 
@@ -76,6 +79,7 @@ function dbConversationToChat(conv: Conversation): Chat {
 /* ================= APP ================= */
 
 function Home() {
+  const navigate = useNavigate();
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [typingChatId, setTypingChatId] = useState<string | null>(null); // Track which chat is typing
@@ -84,6 +88,8 @@ function Home() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false); // Loading state for messages
   const [globalContext, setGlobalContext] = useState<GlobalContextItem[]>([]);
   const [isLoadingGlobalContext, setIsLoadingGlobalContext] = useState(false);
+  const [guestLimitReached, setGuestLimitReached] = useState(false);
+  const [guestStatsRefresh, setGuestStatsRefresh] = useState(0);
   const {
     theme,
     isAuthenticated,
@@ -92,7 +98,21 @@ function Home() {
     globalContextVersion,
   } = useStore();
 
-  // 🔑 used ONLY to force input focus
+  // Navigation handler for guest login prompt
+  const handleLoginClick = useCallback(() => {
+    navigate("/login");
+  }, [navigate]);
+
+  // Check guest rate limit on mount and when stats refresh
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setGuestLimitReached(!guestRateLimitService.canSendMessage());
+    } else {
+      setGuestLimitReached(false);
+    }
+  }, [isAuthenticated, guestStatsRefresh]);
+
+  // used ONLY to force input focus
   const [focusInputKey, setFocusInputKey] = useState(0);
 
   // Load chats from database or localStorage
@@ -238,6 +258,15 @@ function Home() {
     }
   }, [isAuthenticated, privacySettings.saveHistory]);
 
+  // Clear chats when user logs out (isAuthenticated becomes false)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      // Clear chats state so welcome screen appears
+      setChats([]);
+      setActiveChatId(null);
+    }
+  }, [isAuthenticated]);
+
   // Load sidebar state from localStorage
   useEffect(() => {
     const savedSidebarState = localStorage.getItem("reflectify-sidebar-open");
@@ -346,6 +375,18 @@ function Home() {
 
   /* ========== SEND MESSAGE ========== */
   const handleSend = async (text: string, attachments?: AttachedFile[]) => {
+    // Check guest rate limit for non-authenticated users
+    if (!isAuthenticated) {
+      if (!guestRateLimitService.canSendMessage()) {
+        setGuestLimitReached(true);
+        setGuestStatsRefresh(prev => prev + 1);
+        return;
+      }
+      // Record the message for guest rate limiting
+      guestRateLimitService.recordMessage();
+      setGuestStatsRefresh(prev => prev + 1);
+    }
+
     let currentActiveChatId = activeChatId;
     let currentChat = chats.find(c => c.id === currentActiveChatId);
 
@@ -560,56 +601,144 @@ function Home() {
   const activeMessages =
     chats.find(chat => chat.id === activeChatId)?.messages || [];
 
+  // Check if we should show the welcome screen (no chats exist)
+  const showWelcomeScreen = chats.length === 0 && !isLoading;
+
   return (
     <div
       className={`flex h-screen w-screen ${
         theme === "dark" ? "bg-gray-950 text-white" : "bg-gray-50 text-gray-900"
       }`}
     >
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-        chats={chats}
-        activeChatId={activeChatId}
-        onNewChat={createNewChat}
-        onSelectChat={handleSelectChat}
-        onRenameChat={renameChat}
-        onDeleteChat={deleteChat}
-      />
+      {/* Only show sidebar when there are chats */}
+      {chats.length > 0 && (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          chats={chats}
+          activeChatId={activeChatId}
+          onNewChat={createNewChat}
+          onSelectChat={handleSelectChat}
+          onRenameChat={renameChat}
+          onDeleteChat={deleteChat}
+        />
+      )}
 
-      <main className="relative flex min-w-0 flex-1 flex-col">
+      <main className="relative flex min-w-0 flex-1 flex-col pt-16">
         {/* Header */}
-        <div className="absolute top-4 left-4 z-20 flex items-center gap-3">
-          {!isSidebarOpen && (
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className={`rounded-lg p-2 ${
-                theme === "dark"
-                  ? "text-gray-400 hover:bg-gray-800 hover:text-white"
-                  : "text-gray-500 hover:bg-gray-200"
-              }`}
-            >
-              <PanelRight className="h-5 w-5" />
-            </button>
+        <div
+          className={`fixed top-0 right-0 z-20 flex items-center justify-between px-4 py-3 ${isSidebarOpen && chats.length > 0 ? "left-64" : "left-0"} ${theme === "dark" ? "bg-gray-950" : "bg-gray-50"}`}
+        >
+          <div className="flex items-center gap-3">
+            {chats.length > 0 && !isSidebarOpen && (
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className={`rounded-lg p-2 ${
+                  theme === "dark"
+                    ? "text-gray-400 hover:bg-gray-800 hover:text-white"
+                    : "text-gray-500 hover:bg-gray-200"
+                }`}
+              >
+                <PanelRight className="h-5 w-5" />
+              </button>
+            )}
+            {/* Show Reflectify title when there are chats */}
+            {chats.length > 0 && (
+              <span
+                className={`font-semibold ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
+              >
+                Reflectify
+              </span>
+            )}
+          </div>
+
+          {/* Auth buttons for guests */}
+          {!isAuthenticated && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate("/login")}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  theme === "dark"
+                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                    : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"
+                }`}
+              >
+                Sign in
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
+              >
+                Sign up
+              </button>
+            </div>
           )}
-          <span
-            className={`font-semibold ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
-          >
-            Reflectify
-          </span>
         </div>
 
-        <ChatArea
-          messages={activeMessages}
-          isTyping={typingChatId === activeChatId}
-          isLoadingMessages={isLoadingMessages}
-        />
+        {/* Welcome Screen - shown when no chats exist */}
+        {showWelcomeScreen ? (
+          <div className="flex flex-1 flex-col items-center justify-center px-6">
+            <div className="max-w-md text-center">
+              <h1
+                className={`mb-3 text-2xl font-semibold ${
+                  theme === "dark" ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Welcome to Reflectify 🌿
+              </h1>
+              <p
+                className={`mb-8 ${
+                  theme === "dark" ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                A calm space for self-reflection and mindful conversations.
+              </p>
+              <button
+                onClick={createNewChat}
+                className="rounded-xl bg-emerald-600 px-6 py-3 font-medium text-white transition-colors hover:bg-emerald-500"
+              >
+                Start a new reflection
+              </button>
+              {!isAuthenticated && (
+                <p
+                  className={`mt-6 text-sm ${
+                    theme === "dark" ? "text-gray-500" : "text-gray-500"
+                  }`}
+                >
+                  {/* 7 reflections available as a guest */}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Guest Rate Limit Banner */}
+            {!isAuthenticated && (
+              <div className="px-4 pt-4">
+                <GuestLimitBanner
+                  theme={theme}
+                  onLoginClick={handleLoginClick}
+                  refreshKey={guestStatsRefresh}
+                />
+              </div>
+            )}
 
-        <MessageInput
-          onSend={handleSend}
-          autoFocusTrigger={focusInputKey}
-          disabled={typingChatId === activeChatId}
-        />
+            <ChatArea
+              messages={activeMessages}
+              isTyping={typingChatId === activeChatId}
+              isLoadingMessages={isLoadingMessages}
+            />
+
+            <MessageInput
+              onSend={handleSend}
+              autoFocusTrigger={focusInputKey}
+              disabled={
+                typingChatId === activeChatId ||
+                (!isAuthenticated && guestLimitReached)
+              }
+            />
+          </>
+        )}
       </main>
 
       {/* Settings Modal */}

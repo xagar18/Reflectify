@@ -15,7 +15,7 @@ export const getGlobalContext = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
 
-    const globalContexts = await prisma.globalContext.findMany({
+    const globalContexts = await prisma?.globalContext.findMany({
       where: {
         userId,
         isActive: true,

@@ -14,12 +14,14 @@ import useStore from "./zustand/store";
 function App() {
   const { isAuthenticated, getProfile } = useStore();
 
-  if (!isAuthenticated) {
-    getProfile();
-  }
+  // Check auth status on mount
   useEffect(() => {
-    console.log(isAuthenticated);
-  }, [isAuthenticated, getProfile]);
+    getProfile();
+  }, [getProfile]);
+
+  useEffect(() => {
+    console.log("Auth status:", isAuthenticated);
+  }, [isAuthenticated]);
 
   return (
     <>
@@ -36,10 +38,8 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/verify-account/:token" element={<VerifyAccount />} />
         <Route path="/oauth-success" element={<OAuthSuccess />} />
-        <Route
-          path="/"
-          element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
-        />
+        {/* Home is accessible to all users - guests have limited access */}
+        <Route path="/" element={<Home />} />
       </Routes>
       <Toaster />
     </>
