@@ -149,31 +149,37 @@ const useStore = create<AuthState>(set => ({
   },
   // Async function to fetch user profile from backend and update state
   getProfile: async () => {
-    // Make GET request to backend profile endpoint
-    const response = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/profile`,
-      { withCredentials: true } // Include cookies for authentication
-    );
+    try {
+      // Make GET request to backend profile endpoint
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/profile`,
+        { withCredentials: true } // Include cookies for authentication
+      );
 
-    // Update state with fetched user data and set authenticated to true
-    set({ userData: response.data.user, isAuthenticated: true });
+      // Update state with fetched user data and set authenticated to true
+      set({ userData: response.data.user, isAuthenticated: true });
 
-    // Automatically add user's name to global context if available
-    if (response.data.user.name) {
-      try {
-        await globalContextService.setGlobalContext(
-          "name",
-          response.data.user.name,
-          "personal"
-        );
-      } catch (error) {
-        console.error("Error adding user name to global context:", error);
-        // Don't fail the profile loading if this fails
+      // Automatically add user's name to global context if available
+      if (response.data.user.name) {
+        try {
+          await globalContextService.setGlobalContext(
+            "name",
+            response.data.user.name,
+            "personal"
+          );
+        } catch (error) {
+          console.error("Error adding user name to global context:", error);
+          // Don't fail the profile loading if this fails
+        }
       }
-    }
 
-    // Debug log for user data (consider removing in production)
-    console.log(response.data.user);
+      // Debug log for user data (consider removing in production)
+      console.log(response.data.user);
+    } catch (error) {
+      // User is not authenticated (guest) - this is expected, not an error
+      console.log("User not authenticated, continuing as guest");
+      set({ userData: null, isAuthenticated: false });
+    }
   },
   // Function to log out user by clearing user data and authentication flag
   logout: async () => {
@@ -185,6 +191,10 @@ const useStore = create<AuthState>(set => ({
 
     // Clear user data and set authenticated to false
     set({ userData: null, isAuthenticated: false });
+
+    // Clear localStorage chats so guest welcome screen appears
+    localStorage.removeItem("reflectify-chats");
+    localStorage.removeItem("reflectify-active-chat-id");
 
     // Debug log for logout response (consider removing in production)
     console.log(response.data);

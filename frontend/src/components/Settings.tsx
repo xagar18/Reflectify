@@ -52,7 +52,7 @@ function Settings() {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -61,7 +61,7 @@ function Settings() {
 
       {/* Modal */}
       <div
-        className={`relative z-10 flex h-[85vh] max-h-[650px] w-full max-w-2xl flex-col overflow-hidden rounded-2xl shadow-xl ${
+        className={`relative z-10 flex h-[90vh] max-h-[700px] w-full max-w-2xl flex-col overflow-hidden rounded-2xl shadow-xl sm:h-[85vh] sm:max-h-[650px] ${
           theme === "dark"
             ? "border border-gray-800 bg-gray-900 text-white"
             : "border border-gray-200 bg-white text-gray-900"
@@ -87,21 +87,21 @@ function Settings() {
         </div>
 
         {/* Content */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
           {/* Sidebar */}
           <div
-            className={`w-44 shrink-0 border-r p-3 ${
+            className={`w-full shrink-0 border-b p-3 md:w-44 md:border-r md:border-b-0 ${
               theme === "dark"
                 ? "border-gray-800 bg-gray-900/50"
                 : "border-gray-200 bg-gray-50"
             }`}
           >
-            <nav className="space-y-1">
+            <nav className="flex gap-2 md:flex-col md:space-y-1">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
+                  className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors md:w-full md:text-left ${
                     activeTab === tab.id
                       ? theme === "dark"
                         ? "bg-emerald-600 text-white"
@@ -118,7 +118,7 @@ function Settings() {
           </div>
 
           {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             {activeTab === "general" && (
               <GeneralSettings
                 theme={theme}
@@ -173,12 +173,12 @@ function GeneralSettings({
         Choose your preferred theme
       </p>
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-row">
         {options.map(option => (
           <button
             key={option.value}
             onClick={() => setThemeOption(option.value)}
-            className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${
+            className={`w-full rounded-lg border-2 px-4 py-4 text-sm font-medium transition-all sm:flex-1 sm:py-3 ${
               themeOption === option.value
                 ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
                 : theme === "dark"
