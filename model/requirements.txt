@@ -1,7 +1,5 @@
-transformers
-torch
-accelerate
-sentencepiece
+# Vertex AI LLaMA-4 API Requirements
+requests
 python-dotenv
 fastapi
 uvicorn

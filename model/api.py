@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from llama_handler import reflect
 
-app = FastAPI(title="Reflectify Model API", version="1.0.0")
+app = FastAPI(title="Reflectify Model API", version="2.0.0", description="Powered by Vertex AI LLaMA-4")
 
 # Add CORS middleware
 app.add_middleware(
@@ -76,4 +76,5 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    from config import PORT
+    uvicorn.run(app, host="0.0.0.0", port=PORT)

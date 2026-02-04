@@ -182,9 +182,14 @@ function ChatArea({ messages, isTyping, isLoadingMessages }: ChatAreaProps) {
 
                   {/* Message text */}
                   {msg.text && (
-                    <p className="text-sm leading-relaxed sm:text-base">
-                      {msg.text}
-                    </p>
+                    <div className="text-sm leading-relaxed whitespace-pre-wrap sm:text-base">
+                      {msg.text.split("\n").map((line, index) => (
+                        <span key={index}>
+                          {line}
+                          {index < msg.text.split("\n").length - 1 && <br />}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
 

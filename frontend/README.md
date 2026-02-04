@@ -1,36 +1,34 @@
 # Reflectify Frontend
 
-A modern React-based chat application frontend with emotional AI support, built with TypeScript, Tailwind CSS, and Zustand for state management.
+Modern React chat interface for the Reflectify AI companion app.
 
 ## 🚀 Features
 
-- **Real-time Chat Interface**: Modern chat UI with message bubbles and typing indicators
-- **Emotional AI Integration**: Connects to AI model for contextual emotional responses
-- **Authentication**: JWT-based authentication with Google OAuth support
-- **Data Synchronization**: Advanced sync system handling local/server data discrepancies
-- **Responsive Design**: Mobile-first design with Tailwind CSS
-- **Offline Support**: Graceful handling of network interruptions
-- **Theme Support**: Dark/light mode toggle
-- **Privacy Controls**: User data persistence settings
+- 💬 **Real-time Chat** - Smooth chat interface with typing indicators
+- 🎨 **Modern UI** - Tailwind CSS with dark/light theme
+- 🔐 **Authentication** - Login, Register, Google OAuth
+- 📱 **Responsive** - Works on desktop and mobile
+- 💾 **State Management** - Zustand for global state
+- ⚡ **Fast** - Vite for instant HMR
 
 ## 🛠️ Tech Stack
 
-- **React 19** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **Tailwind CSS** - Styling framework
-- **Zustand** - State management
-- **React Router** - Client-side routing
-- **Axios** - HTTP client
-- **React Hook Form** - Form handling
-- **Zod** - Schema validation
-- **Lucide React** - Icon library
+| Technology      | Purpose          |
+| --------------- | ---------------- |
+| React 19        | UI Framework     |
+| TypeScript      | Type Safety      |
+| Vite            | Build Tool       |
+| Tailwind CSS    | Styling          |
+| Zustand         | State Management |
+| React Router    | Routing          |
+| Axios           | HTTP Client      |
+| React Hot Toast | Notifications    |
 
 ## 📋 Prerequisites
 
-- **Node.js** 18+ and npm
-- **Backend server** running (see backend README)
-- **AI Model server** running (see model README)
+- Node.js 18+
+- Backend server running on `:4000`
+- Model API running on `:8001`
 
 ## 🚀 Quick Start
 
@@ -43,221 +41,120 @@ npm install
 
 ### 2. Environment Setup
 
-Create a `.env` file in the `frontend/` directory:
+Create `.env` file:
 
 ```env
-# API Configuration
 VITE_API_URL=http://localhost:4000
-
-# Google OAuth (optional)
-VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
+VITE_MODEL_URL=http://localhost:8001
 ```
 
-### 3. Development Server
+### 3. Run Development Server
 
 ```bash
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`
+Open: http://localhost:5173
 
-## 📜 Available Scripts
-
-```bash
-# Development
-npm run dev          # Start dev server with hot reload
-npm run build        # Production build
-npm run build:check  # Type check + build
-npm run preview      # Preview production build
-
-# Code Quality
-npm run lint         # ESLint check
-```
-
-## 🏗️ Project Structure
+## 📁 Project Structure
 
 ```
 frontend/
 ├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── ChatArea.tsx    # Main chat display
-│   │   ├── ChatItem.tsx    # Individual chat item
-│   │   ├── MessageInput.tsx # Message input component
-│   │   ├── Sidebar.tsx     # Navigation sidebar
-│   │   └── ...
-│   ├── pages/              # Page components
-│   │   ├── Home.tsx        # Main chat interface
-│   │   ├── Login.tsx       # Authentication
-│   │   └── ...
-│   ├── services/           # API services
-│   │   ├── chatService.ts  # Chat API calls
-│   │   ├── modelService.ts # AI model API calls
-│   │   └── dataSyncService.ts # Data synchronization
-│   ├── zustand/            # State management
-│   │   └── store.ts        # Global state store
-│   ├── types/              # TypeScript type definitions
-│   ├── utils/              # Utility functions
-│   └── styles/             # Global styles
-├── public/                 # Static assets
-├── index.html             # HTML template
-├── vite.config.ts         # Vite configuration
-├── tailwind.config.js     # Tailwind configuration
-├── tsconfig.json          # TypeScript configuration
-└── package.json           # Dependencies and scripts
+│   ├── components/      # Reusable UI components
+│   │   ├── ChatArea.tsx     # Chat message display
+│   │   ├── MessageInput.tsx # Input with attachments
+│   │   ├── Sidebar.tsx      # Conversation list
+│   │   ├── Login.tsx        # Login form
+│   │   ├── Register.tsx     # Registration form
+│   │   └── Settings.tsx     # User settings
+│   │
+│   ├── pages/           # Page components
+│   │   ├── Home.tsx         # Main chat page
+│   │   └── OAuthSuccess.tsx # OAuth callback
+│   │
+│   ├── services/        # API services
+│   │   ├── chatService.ts       # Chat API calls
+│   │   ├── modelService.ts      # AI model calls
+│   │   └── globalContextService.ts
+│   │
+│   ├── zustand/         # State management
+│   │   └── store.ts         # Global store
+│   │
+│   ├── App.tsx          # Root component
+│   └── main.tsx         # Entry point
+│
+├── public/              # Static assets
+├── index.html           # HTML template
+├── vite.config.ts       # Vite configuration
+├── tailwind.config.js   # Tailwind configuration
+└── package.json
 ```
 
-## 🔧 Configuration
+## 🎨 Key Components
 
-### Environment Variables
+### ChatArea
 
-| Variable                | Description            | Default                 |
-| ----------------------- | ---------------------- | ----------------------- |
-| `VITE_API_URL`          | Backend API URL        | `http://localhost:4000` |
-| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID | -                       |
+Displays chat messages with:
 
-### Build Configuration
+- User/bot message bubbles
+- Markdown-like formatting (bullet points, line breaks)
+- Typing indicator
+- Auto-scroll to latest message
 
-The app uses Vite for building. Configuration can be modified in `vite.config.ts`:
+### MessageInput
 
-```typescript
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  server: {
-    port: 5173,
-    proxy: {
-      "/api": "http://localhost:4000",
-    },
-  },
-});
-```
+Input field with:
 
-## 🔐 Authentication
+- Multi-line support
+- File attachments
+- Voice input (speech-to-text)
+- Send button
 
-The app supports two authentication methods:
+### Sidebar
 
-1. **Email/Password**: Traditional authentication
-2. **Google OAuth**: Social login (requires Google client ID)
+Conversation management:
 
-## 💾 Data Management
+- List of conversations
+- Create new chat
+- Delete conversations
+- Search/filter
 
-### Local Storage
-
-- User preferences (theme, sidebar state)
-- Non-authenticated user chats
-
-### Server Storage (Authenticated Users)
-
-- User accounts and sessions
-- Chat conversations and messages
-- Privacy settings
-
-### Synchronization
-
-- Automatic conflict resolution
-- Offline queue for failed operations
-- Real-time sync status indicators
-
-## 🎨 Theming
-
-The app supports both light and dark themes:
-
-- **Light Theme**: Clean, bright interface
-- **Dark Theme**: Easy on the eyes for extended use
-
-Theme preference is saved locally and synced across sessions.
-
-## 📱 Responsive Design
-
-- **Mobile-first approach**
-- **Breakpoint-based layouts**
-- **Touch-friendly interactions**
-- **Optimized for all screen sizes**
-
-## 🔍 Development Guidelines
-
-### Code Style
-
-- **ESLint** for code linting
-- **Prettier** for code formatting
-- **TypeScript** for type safety
-
-### Component Patterns
-
-- Functional components with hooks
-- Custom hooks for shared logic
-- Consistent naming conventions
-- Prop validation with TypeScript
-
-### State Management
-
-- **Zustand** for global state
-- **React hooks** for local state
-- **Optimistic updates** for better UX
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Build fails with type errors:**
+## 🔧 Available Scripts
 
 ```bash
-npm run build:check
-# Fix TypeScript errors
+npm run dev      # Start dev server
+npm run build    # Build for production
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
 ```
 
-**API connection issues:**
+## 🌐 API Integration
 
-- Ensure backend server is running on port 4000
-- Check `VITE_API_URL` environment variable
-- Verify CORS settings in backend
+The frontend connects to:
 
-**Styling issues:**
+| Service | URL                    | Purpose               |
+| ------- | ---------------------- | --------------------- |
+| Backend | `:4000/api/v1/*`       | Auth, Chat, User data |
+| Model   | `:8001/api/v1/reflect` | AI responses          |
 
-```bash
-npm run lint
-# Check for Tailwind CSS class conflicts
-```
+## 🎯 Environment Variables
 
-### Development Tips
+| Variable         | Description     | Default                 |
+| ---------------- | --------------- | ----------------------- |
+| `VITE_API_URL`   | Backend API URL | `http://localhost:4000` |
+| `VITE_MODEL_URL` | Model API URL   | `http://localhost:8001` |
 
-- Use React DevTools for component debugging
-- Enable "Paint flashing" in Chrome DevTools to identify re-renders
-- Use the network tab to monitor API calls
-- Check browser console for error messages
+## 📱 Responsive Breakpoints
 
-## 🚀 Deployment
+- Mobile: < 640px
+- Tablet: 640px - 1024px
+- Desktop: > 1024px
 
-### Build for Production
+## 🚀 Production Build
 
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist/` directory, ready for deployment to any static hosting service.
-
-### Environment Setup for Production
-
-Ensure these environment variables are set in your deployment platform:
-
-```env
-VITE_API_URL=https://your-api-domain.com
-VITE_GOOGLE_CLIENT_ID=your_production_google_client_id
-```
-
-## 🤝 Contributing
-
-1. Follow the existing code style
-2. Write meaningful commit messages
-3. Test your changes thoroughly
-4. Update documentation as needed
-
-## 📄 License
-
-This project is part of the Reflectify application. See the main project README for license information.
-
----
-
-**Happy coding! 🎉**
-
-For backend setup, see [Backend README](../backend/README.md)
-For AI model setup, see [Model README](../model/README.md)
+Output is in `dist/` folder. Serve with any static file server.
