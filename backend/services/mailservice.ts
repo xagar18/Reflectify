@@ -3,7 +3,11 @@ import * as nodemailer from "nodemailer";
 
 dotenv.config();
 
-async function mailService(to: string, subject: string, html: string): Promise<void> {
+async function mailService(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<void> {
   console.log("mail services called");
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,

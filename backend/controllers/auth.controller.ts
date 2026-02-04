@@ -2,9 +2,9 @@ import axios from "axios";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import * as dotenv from "dotenv";
+import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
-import { Request, Response } from "express";
 import prisma from "../prisma-client.js";
 import mailService from "../services/mailservice.js";
 
@@ -171,9 +171,13 @@ export const loginUser = async (req: Request, res: Response) => {
     console.log("password checked");
 
     // creating jwt token
-    const jwtToken = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET!, {
-      expiresIn: "10d",
-    });
+    const jwtToken = jwt.sign(
+      { id: existingUser.id },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "10d",
+      },
+    );
     console.log(jwtToken);
 
     console.log("token created");
