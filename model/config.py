@@ -69,5 +69,8 @@ MAX_TOKENS = int(os.getenv("MAX_TOKENS", "512"))
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
 TOP_P = float(os.getenv("TOP_P", "0.9"))
 
+# Intent matching configuration
+USE_INTENT_MATCHING = os.getenv("USE_INTENT_MATCHING", "true").lower() == "true"
+
 # Server config
 PORT = int(os.getenv("PORT", "8001"))

@@ -9,8 +9,9 @@ import os
 from typing import List, Dict
 from config import (
     VERTEX_URL, SYSTEM_PROMPT, CONTEXT_MESSAGE_LIMIT,
-    MAX_TOKENS, TEMPERATURE, TOP_P
+    MAX_TOKENS, TEMPERATURE, TOP_P, USE_INTENT_MATCHING
 )
+from intent_matcher import get_intent_response
 
 
 def get_access_token():
@@ -70,6 +71,14 @@ def reflect(user_input: str, context: List[Dict[str, str]] = None, global_contex
     Returns:
         The assistant's response
     """
+    # First, check for matching intents from intents.json
+    # Always check intents first, regardless of context
+    if USE_INTENT_MATCHING:
+        intent_response = get_intent_response(user_input)
+        if intent_response:
+            print(f"📋 Using predefined response from intents.json")
+            return intent_response
+
     # Get access token
     access_token = get_access_token()
     if not access_token:
