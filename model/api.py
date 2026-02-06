@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from llama_handler import reflect
+from intent_matcher import load_intents, match_intent
 
 app = FastAPI(title="Reflectify Model API", version="2.0.0", description="Powered by Vertex AI LLaMA-4")
 
@@ -73,6 +74,37 @@ async def get_reflection(request: ReflectRequest):
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+@app.get("/api/v1/intents")
+async def get_intents():
+    """Get all available intents and their patterns."""
+    intents = load_intents()
+    return {
+        "total_intents": len(intents.get("intents", [])),
+        "intents": [
+            {
+                "tag": intent["tag"],
+                "patterns": intent.get("patterns", []),
+                "response_count": len(intent.get("responses", []))
+            }
+            for intent in intents.get("intents", [])
+        ]
+    }
+
+@app.post("/api/v1/test-intent")
+async def test_intent(message: str):
+    """Test if a message matches any intent."""
+    result = match_intent(message)
+    if result:
+        return {
+            "matched": True,
+            "intent_tag": result[0],
+            "response": result[1]
+        }
+    return {
+        "matched": False,
+        "message": "No matching intent found. Will use LLM for response."
+    }
 
 if __name__ == "__main__":
     import uvicorn
