@@ -161,6 +161,13 @@ def reflect(user_input: str, context: List[Dict[str, str]] = None, global_contex
                 assistant_response = re.sub(r'\buser\s*\n', '\n', assistant_response, flags=re.IGNORECASE)
                 assistant_response = re.sub(r'\bassistant\s*\n', '\n', assistant_response, flags=re.IGNORECASE)
 
+                # Convert markdown bullet points (* ) to clean bullets (• )
+                assistant_response = re.sub(r'^\* ', '• ', assistant_response, flags=re.MULTILINE)
+                assistant_response = re.sub(r'^\- ', '• ', assistant_response, flags=re.MULTILINE)
+
+                # Remove stray numbers/artifacts that appear alone on a line
+                assistant_response = re.sub(r'^\d{1,3}\s*$', '', assistant_response, flags=re.MULTILINE)
+
                 # Clean up extra whitespace
                 assistant_response = re.sub(r'\n{3,}', '\n\n', assistant_response)
                 assistant_response = re.sub(r' +', ' ', assistant_response)  # Multiple spaces to single
