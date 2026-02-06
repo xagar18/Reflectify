@@ -1,0 +1,366 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "Hi",
+        "Hello",
+        "Hey",
+        "Good morning",
+        "Good afternoon",
+        "Good evening"
+      ],
+      "responses": [
+        "Hi there! I’m here with you. How are you feeling today?",
+        "Hello! It’s good to hear from you. What’s on your mind right now?",
+        "Hey! How’s your day going so far?",
+        "Good morning! I hope you slept well. How are you feeling today?",
+        "Good afternoon! How has your day been so far?",
+        "Good evening! How did your day go?"
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": [
+        "Good night",
+        "Bye",
+        "Goodbye",
+        "See you later",
+        "I have to go",
+        "I’m leaving now",
+        "Talk to you later",
+        "Thanks, bye",
+        "Good night, bye",
+        "Logging off",
+        "Catch you later"
+      ],
+      "responses": [
+        "Good night. I hope you’re able to get some good rest. Take care.",
+        "Take care. If you need to talk again, I’ll be here.",
+        "Goodbye. I hope things feel a little lighter for you. Reach out anytime.",
+        "See you later. Be kind to yourself.",
+        "That’s okay. Take care of yourself, and come back anytime you need to talk.",
+        "Alright. I’m glad you stopped by. Take care and don’t hesitate to return.",
+        "Sounds good. I’ll be right here whenever you’re ready to talk again.",
+        "You’re welcome. I’m glad I could be here for you. Take care.",
+        "Good night. I hope you get some good rest. Take care.",
+        "Alright. Take care, and come back anytime you feel like talking.",
+        "Catch you later. Wishing you a calm and peaceful time ahead."
+      ]
+    },
+    {
+      "tag": "how-are-you",
+      "patterns": [
+        "How are you?",
+        "How are you doing?"
+      ],
+      "responses": [
+        "I’m here and ready to listen. More importantly, how are *you* feeling today?",
+        "I’m doing okay, thank you for asking. How are things going for you?"
+      ]
+    },
+    {
+      "tag": "default",
+      "patterns": [
+        "What’s up?",
+        "I’m fine",
+        "I’m okay",
+        "That’s all for now",
+        "I’m done talking",
+        "I don’t have anyone to talk to",
+        "I don’t feel motivated to do anything",
+        "I can’t take this pain anymore",
+        "I don’t know"
+      ],
+      "responses": [
+        "Not much—just here to listen. What’s been on your mind?",
+        "I’m glad to hear that. If anything comes up later, you can always talk to me.",
+        "That’s good to hear. Do you want to talk about anything today?",
+        "Okay. I hope the rest of your day goes gently. Reach out whenever you need support.",
+        "That’s completely fine. Take care of yourself, and remember you don’t have to go through things alone.",
+        "That can feel really heavy. You don’t have to go through it alone. Reaching out to a family member or an old friend could be a good first step.",
+        "That can happen when you’re overwhelmed. Start with something very small, like a short walk or a shower. Let someone you trust know how you’re feeling too.",
+        "I’m really sorry things feel this unbearable right now. You don’t have to handle this alone. Please reach out to someone immediately. In India, you can contact KIRAN at 1800-599-0019 or go to the nearest emergency room if you’re unsafe.",
+        "That’s alright. You don’t have to have the right words. You can start wherever you feel comfortable."
+      ]
+    },
+    {
+      "tag": "casual",
+      "patterns": [
+        "Nothing much",
+        "Just checking in"
+      ],
+      "responses": [
+        "That’s okay. If you feel like talking about anything, I’m here.",
+        "I’m glad you did. How have you been feeling lately?"
+      ]
+    },
+    {
+      "tag": "conversation",
+      "patterns": [
+        "Can we talk?",
+        "Are you there?"
+      ],
+      "responses": [
+        "Of course. I’m here. What would you like to talk about?",
+        "Yes, I’m here with you. What’s going on?"
+      ]
+    },
+    {
+      "tag": "thanks",
+      "patterns": [
+        "Thank you",
+        "Thanks for listening"
+      ],
+      "responses": [
+        "You’re welcome. I’m glad I could be here for you.",
+        "Anytime. You don’t have to go through things alone."
+      ]
+    },
+    {
+      "tag": "lonely",
+      "patterns": [
+        "I feel lonely these days",
+        "I feel disconnected from everyone",
+        "I feel alone even when people are around"
+      ],
+      "responses": [
+        "It’s okay to feel this way sometimes. You might try talking to your parents or a close friend today. Even a short conversation can help you feel more connected.",
+        "That can be painful. You could try reconnecting with one person you feel safe with. Small steps can slowly bring that sense of connection back.",
+        "That can be really hard. Sometimes emotional connection matters more than physical presence. You might try opening up to someone you feel comfortable with."
+      ]
+    },
+    {
+      "tag": "stressed-exams",
+      "patterns": [
+        "I feel stressed because of my exams",
+        "I’m stressed about my exams",
+        "I don’t feel prepared for my exams and it’s stressing me out",
+        "I don’t feel prepared for my exams"
+      ],
+      "responses": [
+        "That’s understandable. Exams can be overwhelming. Try breaking your study into small parts and take short breaks. Talking to a friend or teacher might also help ease the pressure.",
+        "That’s very understandable. Exams can feel heavy. Try studying in short sessions and taking proper breaks. Talking to a friend or classmate might also help.",
+        "That can cause a lot of anxiety. Focus on what you can do today instead of everything at once. Reaching out to a teacher or friend could help you feel more confident.",
+        "That can cause a lot of anxiety. Focus on what you can do today instead of everything at once. Reaching out to a teacher or friend could help."
+      ]
+    },
+    {
+      "tag": "anxious",
+      "patterns": [
+        "I feel anxious all the time"
+      ],
+      "responses": [
+        "I’m sorry you’re feeling this way. Sometimes anxiety builds up when we keep everything inside. You could try sharing what’s bothering you with someone you trust."
+      ]
+    },
+    {
+      "tag": "not-good-enough",
+      "patterns": [
+        "I feel like I’m not good enough"
+      ],
+      "responses": [
+        "Feeling this way doesn’t mean it’s true. Everyone doubts themselves sometimes. It might help to talk to someone who knows you well and can remind you of your strengths."
+      ]
+    },
+    {
+      "tag": "tired",
+      "patterns": [
+        "I feel empty and tired",
+        "I feel emotionally tired"
+      ],
+      "responses": [
+        "That sounds exhausting. You might be carrying a lot right now. Try taking a small break and checking in with someone close to you — even a simple chat can help.",
+        "That sounds really draining. You might need rest, not answers. Try slowing down today and sharing how you feel with someone supportive."
+      ]
+    },
+    {
+      "tag": "scared-future",
+      "patterns": [
+        "I’m scared about my future",
+        "I feel scared about my future"
+      ],
+      "responses": [
+        "It’s normal to worry about the future. You don’t need all the answers right now. Talking things through with your parents or a mentor might help you feel clearer.",
+        "It’s normal to worry about the future. You don’t need all the answers right now. Talking things through with your parents or a mentor could help you feel clearer."
+      ]
+    },
+    {
+      "tag": "sad",
+      "patterns": [
+        "I feel sad for no reason"
+      ],
+      "responses": [
+        "That can happen sometimes, and it doesn’t mean there’s something wrong with you. You might feel a bit better after talking to someone who understands you."
+      ]
+    },
+    {
+      "tag": "pressure",
+      "patterns": [
+        "I feel pressured by everyone’s expectations",
+        "I feel pressured because everyone expects a lot from me",
+        "I feel stressed trying to meet everyone’s expectations"
+      ],
+      "responses": [
+        "That sounds stressful. It’s okay to pause and focus on what you need. Sharing how you feel with your parents or someone supportive could ease that pressure.",
+        "That kind of pressure can be heavy. It’s okay to pause and focus on what you need, not just what others expect. Talking to someone supportive might help.",
+        "That’s exhausting. You don’t have to be perfect for everyone. Sharing how you feel with someone you trust could ease that pressure."
+      ]
+    },
+    {
+      "tag": "misunderstood",
+      "patterns": [
+        "I feel like nobody understands me"
+      ],
+      "responses": [
+        "That can feel isolating. You deserve to be heard. Maybe there’s one person in your life who could listen without judging — reaching out might help."
+      ]
+    },
+    {
+      "tag": "overwhelmed",
+      "patterns": [
+        "I feel overwhelmed by everything"
+      ],
+      "responses": [
+        "That’s a lot to carry. Try taking things one step at a time. You don’t have to solve everything today, and talking to someone can really help."
+      ]
+    },
+    {
+      "tag": "scared-talking",
+      "patterns": [
+        "I feel scared to talk to people"
+      ],
+      "responses": [
+        "That’s okay. You can start small, like talking to one person you trust. With time, it can get easier, especially if you don’t rush yourself."
+      ]
+    },
+    {
+      "tag": "giving-up",
+      "patterns": [
+        "I feel like giving up"
+      ],
+      "responses": [
+        "I’m really glad you shared this. You don’t have to face everything at once. Reaching out to a trusted person right now could help you feel less alone."
+      ]
+    },
+    {
+      "tag": "frustrated",
+      "patterns": [
+        "I feel frustrated with myself"
+      ],
+      "responses": [
+        "It’s okay to feel frustrated sometimes. Try being a little kinder to yourself today, and consider talking to someone who can support you."
+      ]
+    },
+    {
+      "tag": "confidence",
+      "patterns": [
+        "I don’t feel confident anymore"
+      ],
+      "responses": [
+        "Losing confidence can happen to anyone. You might feel better after talking to someone who believes in you, like a friend or family member."
+      ]
+    },
+    {
+      "tag": "lost",
+      "patterns": [
+        "I feel lost in life"
+      ],
+      "responses": [
+        "Feeling lost doesn’t mean you’re failing. Many people feel this way at times. Talking things through with someone you trust could help you find clarity."
+      ]
+    },
+    {
+      "tag": "stressed-project",
+      "patterns": [
+        "I’m stressed because my project deadline is very close",
+        "My project is stressing me out a lot",
+        "I feel stressed because my project is not going well"
+      ],
+      "responses": [
+        "That sounds overwhelming. Try breaking the project into smaller tasks and focus on just one part at a time. Talking to your guide or a teammate could really help.",
+        "It’s understandable to feel this pressure. Taking a short break and then planning your next step might make things feel more manageable.",
+        "That can be frustrating. Sharing what’s going wrong with a mentor or friend might help you see options you haven’t noticed yet."
+      ]
+    },
+    {
+      "tag": "stressed-work",
+      "patterns": [
+        "I’m stressed because of work",
+        "My job is making me feel exhausted",
+        "I feel stressed because my workload is too much"
+      ],
+      "responses": [
+        "Work stress can build up quickly. Try writing down what’s most urgent and take short breaks if you can. Talking to someone you trust about work can help clear your mind.",
+        "That sounds draining. You might need rest more than motivation right now. Try slowing down after work and checking in with someone close to you.",
+        "That’s a lot for one person to carry. If possible, see if you can prioritize tasks or ask for help. Even sharing how overwhelmed you feel can help."
+      ]
+    },
+    {
+      "tag": "burned-out",
+      "patterns": [
+        "I feel completely burned out",
+        "I’m mentally exhausted from everything"
+      ],
+      "responses": [
+        "That sounds really tough. Burnout usually means you’ve been pushing yourself for too long. Giving yourself permission to rest and asking for support can really help.",
+        "That’s a sign you’ve been carrying a lot. You might not need solutions right now — just rest and someone who understands you."
+      ]
+    },
+    {
+      "tag": "scared-failing",
+      "patterns": [
+        "I feel scared of failing"
+      ],
+      "responses": [
+        "Fear of failure can be stressful. Failing doesn’t define you. Talking it through with someone supportive could help you see things more clearly."
+      ]
+    },
+    {
+      "tag": "comparing",
+      "patterns": [
+        "I keep comparing myself to others and it stresses me out"
+      ],
+      "responses": [
+        "Comparison can really drain you. Everyone moves at their own pace, even if it doesn’t look that way. Focusing on your own progress might help."
+      ]
+    },
+    {
+      "tag": "stressed-general",
+      "patterns": [
+        "I feel stressed because I don’t have enough time",
+        "Everything feels stressful right now"
+      ],
+      "responses": [
+        "Time pressure can make everything feel heavier. Try focusing on one small task right now and sharing how rushed you feel with someone supportive.",
+        "That can feel overwhelming. You don’t need to fix everything today. Taking one small step and reaching out for support might help."
+      ]
+    },
+    {
+      "tag": "suicide",
+      "patterns": [
+        "I want to kill myself",
+        "I feel like ending my life",
+        "Everyone would be better off without me",
+        "I wish I could just disappear"
+      ],
+      "responses": [
+        "I’m really sorry that you’re feeling this much pain. You don’t have to go through this alone. Please reach out for immediate help right now. If you’re in India, you can call KIRAN (24/7 Mental Health Helpline) at 1800-599-0019 or AASRA at +91-9820466726. If you feel in immediate danger, please contact local emergency services or go to the nearest hospital.",
+        "I’m really glad you told me this. Your life matters, even if it doesn’t feel that way right now. Please talk to someone immediately who can help keep you safe. In India, you can call iCALL at +91-9152987821 or KIRAN at 1800-599-0019.",
+        "I’m really sorry you’re feeling this way. Feeling like a burden can be incredibly painful, but it doesn’t mean it’s true. Please reach out for help right now. In India, KIRAN (1800-599-0019) and AASRA (+91-9820466726) are available to listen.",
+        "I’m really glad you shared this with me. It sounds like you’re carrying a lot of pain. You deserve care and support. Please consider calling KIRAN at 1800-599-0019 or AASRA at +91-9820466726 to talk to someone right now."
+      ]
+    },
+    {
+      "tag": "unclear",
+      "patterns": [
+        "uh",
+        "???"
+      ],
+      "responses": [
+        "That’s okay. Take your time. I’m here to listen whenever you’re ready.",
+        "I’m not quite sure what you meant. Could you explain it in a different way?"
+      ]
+    }
+  ]
+}
