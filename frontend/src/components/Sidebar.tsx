@@ -48,10 +48,10 @@ function Sidebar({
         />
       )}
       <aside
-        className={`flex h-screen flex-col transition-all duration-300 ${isOpen ? "w-64" : "w-0 overflow-hidden"} fixed z-50 md:relative md:z-auto ${
+        className={`flex h-screen flex-col transition-all duration-300 ${isOpen ? "w-64" : "w-0 overflow-hidden"} fixed z-50 shadow-xl md:relative md:z-auto ${
           theme === "dark"
-            ? "border-r border-gray-800 bg-gray-900"
-            : "border-r border-gray-200 bg-white"
+            ? "border-r border-gray-800/60 bg-gray-900/95 backdrop-blur-md"
+            : "border-r border-gray-200/60 bg-white/95 backdrop-blur-md"
         }`}
       >
         {/* ===== HEADER (FIXED) ===== */}
@@ -82,10 +82,10 @@ function Sidebar({
 
           <button
             onClick={onNewChat}
-            className={`w-full rounded-lg px-3 py-2 font-medium transition ${
+            className={`w-full rounded-xl px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] ${
               theme === "dark"
-                ? "bg-emerald-600 text-white hover:bg-emerald-500"
-                : "bg-emerald-500 text-white hover:bg-emerald-600"
+                ? "bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-600/25 hover:shadow-emerald-500/30"
+                : "bg-gradient-to-r from-emerald-500 to-teal-500 shadow-emerald-500/25 hover:shadow-emerald-400/30"
             }`}
           >
             + New Reflection
@@ -96,10 +96,10 @@ function Sidebar({
             placeholder="Search chats"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className={`w-full rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 ${
+            className={`w-full rounded-xl px-4 py-3 text-sm shadow-md backdrop-blur-sm transition-all duration-200 outline-none focus:shadow-lg focus:ring-2 ${
               theme === "dark"
-                ? "bg-gray-800 text-white placeholder-gray-400"
-                : "border border-gray-200 bg-gray-100 text-gray-900 placeholder-gray-500"
+                ? "border border-gray-700/50 bg-gray-800/80 text-white placeholder-gray-400 shadow-black/10 focus:shadow-emerald-500/10 focus:ring-emerald-500/50"
+                : "border border-gray-200/50 bg-gray-100/80 text-gray-900 placeholder-gray-500 shadow-gray-200/50 focus:shadow-emerald-400/10 focus:ring-emerald-400/50"
             }`}
           />
         </div>
