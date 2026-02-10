@@ -28,47 +28,124 @@ function MessageInput({
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const wantsListeningRef = useRef(false);
+  const finalTranscriptRef = useRef("");
+  const restartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Check for voice support
+  // Check for voice support and set up recognition
   useEffect(() => {
-    const SpeechRecognition =
+    const SpeechRecognitionAPI =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      setVoiceSupported(true);
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = "en-US";
+    if (!SpeechRecognitionAPI) return;
 
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0].transcript)
-          .join("");
-        setInput(transcript);
-      };
+    setVoiceSupported(true);
+    const recognition = new SpeechRecognitionAPI();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+    recognition.maxAlternatives = 1;
 
-      recognition.onend = () => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let newFinal = "";
+      let interimPart = "";
+
+      // Only process new results from resultIndex to avoid re-counting old finals
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          newFinal += result[0].transcript;
+        } else {
+          interimPart += result[0].transcript;
+        }
+      }
+
+      // Append newly finalized text to our accumulated transcript
+      if (newFinal) {
+        finalTranscriptRef.current += newFinal;
+      }
+
+      setInput(finalTranscriptRef.current + interimPart);
+    };
+
+    recognition.onend = () => {
+      // Auto-restart after a brief delay if the user still wants to listen
+      if (wantsListeningRef.current) {
+        restartTimeoutRef.current = setTimeout(() => {
+          if (wantsListeningRef.current && recognitionRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch {
+              // If start fails (e.g. already running), give up gracefully
+              wantsListeningRef.current = false;
+              setIsListening(false);
+            }
+          }
+        }, 200);
+      } else {
         setIsListening(false);
-      };
+      }
+    };
 
-      recognition.onerror = () => {
-        setIsListening(false);
-      };
+    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+      // "no-speech" and "aborted" are non-fatal — let onend handle restart
+      if (e.error === "no-speech" || e.error === "aborted") return;
 
-      recognitionRef.current = recognition;
-    }
+      console.warn("Speech recognition error:", e.error);
+      wantsListeningRef.current = false;
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    // Cleanup on unmount
+    return () => {
+      wantsListeningRef.current = false;
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
+      }
+      try {
+        recognition.stop();
+      } catch {
+        // ignore if not started
+      }
+      recognitionRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, [autoFocusTrigger]);
 
+  // Stop voice recognition cleanly
+  const stopListening = () => {
+    wantsListeningRef.current = false;
+    if (restartTimeoutRef.current) {
+      clearTimeout(restartTimeoutRef.current);
+      restartTimeoutRef.current = null;
+    }
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // ignore if not started
+      }
+    }
+    setIsListening(false);
+  };
+
   const handleSend = () => {
     if (disabled) return;
     if (!input.trim() && attachments.length === 0) return;
-    onSend(input, attachments.length > 0 ? attachments : undefined);
+
+    // Stop voice if it's running before sending
+    if (isListening) {
+      stopListening();
+    }
+
+    onSend(input.trim(), attachments.length > 0 ? attachments : undefined);
     setInput("");
     setAttachments([]);
+    finalTranscriptRef.current = "";
     // Re-focus input after sending
     setTimeout(() => inputRef.current?.focus(), 0);
   };
@@ -111,11 +188,19 @@ function MessageInput({
     if (!recognitionRef.current) return;
 
     if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+      stopListening();
     } else {
-      recognitionRef.current.start();
-      setIsListening(true);
+      // Preserve any existing text the user already typed
+      finalTranscriptRef.current = input;
+      wantsListeningRef.current = true;
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch {
+        // If start() throws (e.g. already running), reset state
+        wantsListeningRef.current = false;
+        setIsListening(false);
+      }
     }
   };
 
@@ -278,16 +363,23 @@ function MessageInput({
               {voiceSupported && (
                 <button
                   onClick={toggleVoice}
-                  className={`rounded-lg p-2 ${
+                  title={isListening ? "Stop listening" : "Voice input"}
+                  aria-label={isListening ? "Stop listening" : "Voice input"}
+                  className={`relative rounded-lg p-2 transition-colors duration-200 ${
                     isListening
-                      ? "text-red-400"
+                      ? "text-emerald-500"
                       : theme === "dark"
                         ? "text-gray-500 hover:text-gray-300"
                         : "text-gray-400 hover:text-gray-600"
                   }`}
                 >
+                  {isListening && (
+                    <span className="absolute inset-0 animate-ping rounded-lg text-emerald-500/30" />
+                  )}
                   <svg
-                    className="h-5 w-5"
+                    className={`relative h-5 w-5 ${
+                      isListening ? "animate-pulse" : ""
+                    }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -331,15 +423,15 @@ function MessageInput({
 
         {/* Voice Status */}
         {isListening && (
-          <div className="mt-3 flex items-center justify-center gap-2 text-sm text-red-400">
+          <div className="mt-3 flex items-center justify-center gap-2 text-sm text-emerald-500">
             <div className="flex gap-1">
-              <div className="h-2 w-2 animate-pulse rounded-full bg-red-400"></div>
+              <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500"></div>
               <div
-                className="h-2 w-2 animate-pulse rounded-full bg-red-400"
+                className="h-2 w-2 animate-pulse rounded-full bg-emerald-500"
                 style={{ animationDelay: "0.2s" }}
               ></div>
               <div
-                className="h-2 w-2 animate-pulse rounded-full bg-red-400"
+                className="h-2 w-2 animate-pulse rounded-full bg-emerald-500"
                 style={{ animationDelay: "0.4s" }}
               ></div>
             </div>
