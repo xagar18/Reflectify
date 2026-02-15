@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useStore from "../zustand/store";
 import type { AttachedFile } from "./MessageInput";
 
@@ -30,14 +30,41 @@ function ChatArea({ messages, isTyping, isLoadingMessages }: ChatAreaProps) {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  const handleCopyMessage = async (text: string) => {
+  const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
+  const [speakingMessageId, setSpeakingMessageId] = useState<number | null>(
+    null
+  );
+
+  const handleCopyMessage = async (msgId: number, text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      // Could add a toast notification here
+      setCopiedMessageId(msgId);
+      setTimeout(() => setCopiedMessageId(null), 2000);
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
   };
+
+  const handleReadAloud = (msgId: number, text: string) => {
+    if (speakingMessageId === msgId) {
+      window.speechSynthesis.cancel();
+      setSpeakingMessageId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => setSpeakingMessageId(null);
+    utterance.onerror = () => setSpeakingMessageId(null);
+    setSpeakingMessageId(msgId);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Cleanup speech synthesis on unmount
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, []);
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -192,6 +219,111 @@ function ChatArea({ messages, isTyping, isLoadingMessages }: ChatAreaProps) {
                     </div>
                   )}
                 </div>
+
+                {/* Action buttons */}
+                {msg.text && (
+                  <div
+                    className={`mt-1.5 flex items-center gap-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${
+                      msg.sender === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    {/* Copy button */}
+                    <button
+                      onClick={() => handleCopyMessage(msg.id, msg.text)}
+                      title={copiedMessageId === msg.id ? "Copied!" : "Copy"}
+                      className={`rounded-md p-1.5 transition-colors ${
+                        copiedMessageId === msg.id
+                          ? "text-emerald-500"
+                          : theme === "dark"
+                            ? "text-gray-500 hover:bg-gray-800 hover:text-gray-300"
+                            : "text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+                      }`}
+                    >
+                      {copiedMessageId === msg.id ? (
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Read aloud button */}
+                    <button
+                      onClick={() => handleReadAloud(msg.id, msg.text)}
+                      title={
+                        speakingMessageId === msg.id
+                          ? "Stop reading"
+                          : "Read aloud"
+                      }
+                      className={`rounded-md p-1.5 transition-colors ${
+                        speakingMessageId === msg.id
+                          ? "text-emerald-500"
+                          : theme === "dark"
+                            ? "text-gray-500 hover:bg-gray-800 hover:text-gray-300"
+                            : "text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+                      }`}
+                    >
+                      {speakingMessageId === msg.id ? (
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                )}
 
                 {/* Timestamp */}
                 <div
