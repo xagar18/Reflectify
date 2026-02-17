@@ -1,5 +1,5 @@
 import { PanelRight } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Message } from "../components/ChatArea";
 import ChatArea from "../components/ChatArea";
@@ -98,10 +98,20 @@ function Home() {
     globalContextVersion,
   } = useStore();
 
+  // Voice conversation state
+  const [isVoiceConversation, setIsVoiceConversation] = useState(false);
+  const [triggerListening, setTriggerListening] = useState(0);
+  const isVoiceConversationRef = useRef(false);
+
   // Navigation handler for guest login prompt
   const handleLoginClick = useCallback(() => {
     navigate("/login");
   }, [navigate]);
+
+  // Keep voice conversation ref in sync
+  useEffect(() => {
+    isVoiceConversationRef.current = isVoiceConversation;
+  }, [isVoiceConversation]);
 
   // Check guest rate limit on mount and when stats refresh
   useEffect(() => {
@@ -551,6 +561,16 @@ function Home() {
         }
       }
 
+      // Voice conversation: read reply aloud, then restart listening
+      if (isVoiceConversationRef.current) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(replyText);
+        utterance.onend = () => {
+          setTriggerListening(prev => prev + 1);
+        };
+        window.speechSynthesis.speak(utterance);
+      }
+
       setTypingChatId(null);
     })();
   };
@@ -736,6 +756,13 @@ function Home() {
                 typingChatId === activeChatId ||
                 (!isAuthenticated && guestLimitReached)
               }
+              isVoiceConversation={isVoiceConversation}
+              onVoiceConversationToggle={() => {
+                const newState = !isVoiceConversation;
+                if (!newState) window.speechSynthesis.cancel();
+                setIsVoiceConversation(newState);
+              }}
+              triggerListening={triggerListening}
             />
           </>
         )}

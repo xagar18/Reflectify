@@ -12,12 +12,18 @@ type MessageInputProps = {
   onSend: (text: string, attachments?: AttachedFile[]) => void;
   autoFocusTrigger?: number;
   disabled?: boolean;
+  isVoiceConversation?: boolean;
+  onVoiceConversationToggle?: () => void;
+  triggerListening?: number;
 };
 
 function MessageInput({
   onSend,
   autoFocusTrigger,
   disabled,
+  isVoiceConversation,
+  onVoiceConversationToggle,
+  triggerListening,
 }: MessageInputProps) {
   const { theme } = useStore();
   const [input, setInput] = useState("");
@@ -28,17 +34,66 @@ function MessageInput({
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const wantsListeningRef = useRef(false);
   const finalTranscriptRef = useRef("");
-  const restartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSendTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const voiceConversationRef = useRef(false);
+  const onSendRef = useRef(onSend);
+  const sessionIdRef = useRef(0); // Track recognition sessions to ignore stale callbacks
 
-  // Check for voice support and set up recognition
+  // Keep refs in sync with props
+  useEffect(() => {
+    onSendRef.current = onSend;
+  }, [onSend]);
+  useEffect(() => {
+    voiceConversationRef.current = !!isVoiceConversation;
+  }, [isVoiceConversation]);
+
+  // Check for voice support on mount
   useEffect(() => {
     const SpeechRecognitionAPI =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) return;
+    if (SpeechRecognitionAPI) {
+      setVoiceSupported(true);
+    }
+    return () => {
+      // Cleanup on unmount
+      destroyRecognition();
+      if (autoSendTimeoutRef.current) clearTimeout(autoSendTimeoutRef.current);
+    };
+  }, []);
 
-    setVoiceSupported(true);
+  /** Tear down the current recognition instance completely */
+  const destroyRecognition = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onend = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.abort();
+      } catch {
+        /* ignore */
+      }
+      recognitionRef.current = null;
+    }
+  };
+
+  /** Create a fresh SpeechRecognition instance, wire handlers, and start it.
+   *  Returns true if started successfully. */
+  const startRecognition = (forVoiceConversation: boolean): boolean => {
+    const SpeechRecognitionAPI =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) return false;
+
+    // Destroy any lingering previous instance
+    destroyRecognition();
+    if (autoSendTimeoutRef.current) {
+      clearTimeout(autoSendTimeoutRef.current);
+      autoSendTimeoutRef.current = null;
+    }
+
+    const session = ++sessionIdRef.current;
+    finalTranscriptRef.current = forVoiceConversation ? "" : input;
+
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -46,10 +101,11 @@ function MessageInput({
     recognition.maxAlternatives = 1;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
+      if (session !== sessionIdRef.current) return; // stale session
+
       let newFinal = "";
       let interimPart = "";
 
-      // Only process new results from resultIndex to avoid re-counting old finals
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
@@ -59,77 +115,104 @@ function MessageInput({
         }
       }
 
-      // Append newly finalized text to our accumulated transcript
       if (newFinal) {
         finalTranscriptRef.current += newFinal;
+
+        // Voice conversation: auto-send after 1.8s of finalized silence
+        if (voiceConversationRef.current) {
+          if (autoSendTimeoutRef.current)
+            clearTimeout(autoSendTimeoutRef.current);
+          autoSendTimeoutRef.current = setTimeout(() => {
+            if (session !== sessionIdRef.current) return;
+            const pendingText = finalTranscriptRef.current.trim();
+            if (pendingText && voiceConversationRef.current) {
+              destroyRecognition();
+              finalTranscriptRef.current = "";
+              setInput("");
+              setIsListening(false);
+              onSendRef.current(pendingText);
+            }
+          }, 1800);
+        }
       }
 
       setInput(finalTranscriptRef.current + interimPart);
     };
 
     recognition.onend = () => {
-      // Auto-restart after a brief delay if the user still wants to listen
-      if (wantsListeningRef.current) {
-        restartTimeoutRef.current = setTimeout(() => {
-          if (wantsListeningRef.current && recognitionRef.current) {
-            try {
-              recognitionRef.current.start();
-            } catch {
-              // If start fails (e.g. already running), give up gracefully
-              wantsListeningRef.current = false;
-              setIsListening(false);
+      if (session !== sessionIdRef.current) return; // stale session
+
+      if (voiceConversationRef.current) {
+        // In voice conversation, if we have accumulated text, send it
+        const pendingText = finalTranscriptRef.current.trim();
+        if (pendingText) {
+          if (autoSendTimeoutRef.current)
+            clearTimeout(autoSendTimeoutRef.current);
+          destroyRecognition();
+          finalTranscriptRef.current = "";
+          setInput("");
+          setIsListening(false);
+          onSendRef.current(pendingText);
+        } else {
+          // No text captured yet — create a fresh instance and keep listening
+          setTimeout(() => {
+            if (
+              session === sessionIdRef.current &&
+              voiceConversationRef.current
+            ) {
+              startRecognition(true);
             }
-          }
-        }, 200);
+          }, 300);
+        }
       } else {
+        // Normal speech-to-text ended — do NOT auto-restart, the user will click again
         setIsListening(false);
       }
     };
 
     recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
-      // "no-speech" and "aborted" are non-fatal — let onend handle restart
+      if (session !== sessionIdRef.current) return;
       if (e.error === "no-speech" || e.error === "aborted") return;
-
       console.warn("Speech recognition error:", e.error);
-      wantsListeningRef.current = false;
       setIsListening(false);
     };
 
     recognitionRef.current = recognition;
 
-    // Cleanup on unmount
-    return () => {
-      wantsListeningRef.current = false;
-      if (restartTimeoutRef.current) {
-        clearTimeout(restartTimeoutRef.current);
-      }
-      try {
-        recognition.stop();
-      } catch {
-        // ignore if not started
-      }
-      recognitionRef.current = null;
-    };
-  }, []);
+    try {
+      recognition.start();
+      setIsListening(true);
+      return true;
+    } catch {
+      destroyRecognition();
+      setIsListening(false);
+      return false;
+    }
+  };
 
   useEffect(() => {
     inputRef.current?.focus();
   }, [autoFocusTrigger]);
 
+  // Restart listening when triggered (after TTS finishes in voice conversation)
+  useEffect(() => {
+    if (
+      triggerListening &&
+      triggerListening > 0 &&
+      voiceConversationRef.current
+    ) {
+      startRecognition(true);
+    }
+  }, [triggerListening]);
+
   // Stop voice recognition cleanly
   const stopListening = () => {
-    wantsListeningRef.current = false;
-    if (restartTimeoutRef.current) {
-      clearTimeout(restartTimeoutRef.current);
-      restartTimeoutRef.current = null;
+    if (autoSendTimeoutRef.current) {
+      clearTimeout(autoSendTimeoutRef.current);
+      autoSendTimeoutRef.current = null;
     }
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch {
-        // ignore if not started
-      }
-    }
+    sessionIdRef.current++; // invalidate any pending callbacks
+    destroyRecognition();
     setIsListening(false);
   };
 
@@ -185,22 +268,39 @@ function MessageInput({
   };
 
   const toggleVoice = () => {
-    if (!recognitionRef.current) return;
+    // Stop voice conversation if active
+    if (isVoiceConversation) {
+      voiceConversationRef.current = false;
+      stopListening();
+      onVoiceConversationToggle?.();
+      return;
+    }
 
     if (isListening) {
       stopListening();
     } else {
-      // Preserve any existing text the user already typed
-      finalTranscriptRef.current = input;
-      wantsListeningRef.current = true;
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch {
-        // If start() throws (e.g. already running), reset state
-        wantsListeningRef.current = false;
-        setIsListening(false);
-      }
+      startRecognition(false);
+    }
+  };
+
+  const handleVoiceConversationClick = () => {
+    if (isVoiceConversation) {
+      // Turn off voice conversation
+      voiceConversationRef.current = false;
+      stopListening();
+      onVoiceConversationToggle?.();
+    } else {
+      // Turn on voice conversation — stop any current listening first
+      stopListening();
+      voiceConversationRef.current = true;
+      onVoiceConversationToggle?.();
+      // Small delay to let the old instance fully tear down
+      setTimeout(() => {
+        if (!startRecognition(true)) {
+          voiceConversationRef.current = false;
+          onVoiceConversationToggle?.();
+        }
+      }, 150);
     }
   };
 
@@ -359,12 +459,12 @@ function MessageInput({
 
             {/* Right side buttons */}
             <div className="flex items-center gap-1">
-              {/* Voice Button */}
-              {voiceSupported && (
+              {/* Speech-to-Text Button */}
+              {voiceSupported && !isVoiceConversation && (
                 <button
                   onClick={toggleVoice}
-                  title={isListening ? "Stop listening" : "Voice input"}
-                  aria-label={isListening ? "Stop listening" : "Voice input"}
+                  title={isListening ? "Stop listening" : "Dictate"}
+                  aria-label={isListening ? "Stop listening" : "Speech to text"}
                   className={`relative rounded-lg p-2 transition-colors duration-200 ${
                     isListening
                       ? "text-emerald-500"
@@ -374,7 +474,7 @@ function MessageInput({
                   }`}
                 >
                   {isListening && (
-                    <span className="absolute inset-0 animate-ping rounded-lg text-emerald-500/30" />
+                    <span className="absolute inset-0 animate-ping rounded-lg bg-emerald-500/20" />
                   )}
                   <svg
                     className={`relative h-5 w-5 ${
@@ -389,6 +489,54 @@ function MessageInput({
                       strokeLinejoin="round"
                       strokeWidth={2}
                       d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                    />
+                  </svg>
+                </button>
+              )}
+
+              {/* Voice Conversation Button */}
+              {voiceSupported && (
+                <button
+                  onClick={handleVoiceConversationClick}
+                  title={
+                    isVoiceConversation
+                      ? "Stop voice conversation"
+                      : "Voice conversation"
+                  }
+                  aria-label={
+                    isVoiceConversation
+                      ? "Stop voice conversation"
+                      : "Voice conversation"
+                  }
+                  className={`relative rounded-lg p-2 transition-colors duration-200 ${
+                    isVoiceConversation
+                      ? "text-emerald-500"
+                      : theme === "dark"
+                        ? "text-gray-500 hover:text-gray-300"
+                        : "text-gray-400 hover:text-gray-600"
+                  }`}
+                >
+                  {isVoiceConversation && (
+                    <span className="absolute inset-0 animate-ping rounded-lg bg-emerald-500/20" />
+                  )}
+                  <svg
+                    className={`relative h-5 w-5 ${
+                      isVoiceConversation ? "animate-pulse" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 18v-6a9 9 0 0118 0v6"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"
                     />
                   </svg>
                 </button>
@@ -422,7 +570,7 @@ function MessageInput({
         </div>
 
         {/* Voice Status */}
-        {isListening && (
+        {(isListening || isVoiceConversation) && (
           <div className="mt-3 flex items-center justify-center gap-2 text-sm text-emerald-500">
             <div className="flex gap-1">
               <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500"></div>
@@ -435,7 +583,13 @@ function MessageInput({
                 style={{ animationDelay: "0.4s" }}
               ></div>
             </div>
-            <span className="animate-pulse">Listening... Speak now</span>
+            <span className="animate-pulse">
+              {isVoiceConversation
+                ? isListening
+                  ? "Voice conversation · Listening..."
+                  : "Voice conversation · Processing..."
+                : "Listening... Speak now"}
+            </span>
           </div>
         )}
       </div>
