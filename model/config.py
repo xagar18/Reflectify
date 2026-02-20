@@ -3,19 +3,22 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Vertex AI Configuration (from .env)
-PROJECT_ID = os.getenv("PROJECT_ID", "10304563589")
-REGION = os.getenv("REGION", "us-central1")
-ENDPOINT_ID = os.getenv("ENDPOINT_ID", "mg-endpoint-56ec54f3-0bc0-4292-8f74-0dff57b74cf6")
-DEDICATED_DOMAIN = os.getenv("DEDICATED_DOMAIN", f"{ENDPOINT_ID}.{REGION}-{PROJECT_ID}.prediction.vertexai.goog")
+# ==============================
+# RunPod Configuration
+# ==============================
 
-# Vertex AI REST API endpoint
-VERTEX_URL = f"https://{DEDICATED_DOMAIN}/v1/projects/{PROJECT_ID}/locations/{REGION}/endpoints/{ENDPOINT_ID}:predict"
+RUNPOD_URL = os.getenv("RUNPOD_URL")
 
-# Context message limit for conversation history
+# ==============================
+# Context configuration
+# ==============================
+
 CONTEXT_MESSAGE_LIMIT = int(os.getenv("CONTEXT_MESSAGE_LIMIT", "10"))
 
-# System prompt for Reflectify
+# ==============================
+# System Prompt (UNCHANGED)
+# ==============================
+
 SYSTEM_PROMPT = """You are Reflectify, a friendly and helpful emotional companion and journaling assistant.
 
 IMPORTANT RULES:
@@ -63,14 +66,22 @@ BAD EXAMPLE (DON'T DO THIS):
 "Let's try a grounding technique: 1. Notice your feet... 2. Feel the air... Inhale 1... 2... 3..."
 
 Be a helpful friend, not a meditation app."""
+# ==============================
+# Model Parameters
+# ==============================
 
-# Model parameters (from .env)
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "512"))
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
 TOP_P = float(os.getenv("TOP_P", "0.9"))
 
-# Intent matching configuration
+# ==============================
+# Intent Matching
+# ==============================
+
 USE_INTENT_MATCHING = os.getenv("USE_INTENT_MATCHING", "true").lower() == "true"
 
-# Server config
+# ==============================
+# Server Config
+# ==============================
+
 PORT = int(os.getenv("PORT", "8001"))

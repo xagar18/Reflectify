@@ -5,30 +5,42 @@ from typing import List, Optional
 from llama_handler import reflect
 from intent_matcher import load_intents, match_intent
 
-app = FastAPI(title="Reflectify Model API", version="2.0.0", description="Powered by Vertex AI LLaMA-4")
+app = FastAPI(
+    title="Reflectify Model API",
+    version="2.0.0",
+    description="Reflectify Emotional AI Backend"
+)
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],  # Frontend URLs
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 class ChatMessage(BaseModel):
     role: str  # "user", "assistant", or "system"
     content: str
 
+
 class ReflectRequest(BaseModel):
     message: str
-    context: Optional[List[ChatMessage]] = []  # Previous messages for context
-    global_context: Optional[str] = ""  # Global context string
-    user_id: Optional[str] = None  # User ID for fetching global context
+    context: Optional[List[ChatMessage]] = []
+    global_context: Optional[str] = ""
+    user_id: Optional[str] = None
+
 
 class ReflectResponse(BaseModel):
     response: str
     debug_info: Optional[dict] = None
+
 
 @app.post("/api/v1/reflect", response_model=ReflectResponse)
 async def get_reflection(request: ReflectRequest):
@@ -36,28 +48,28 @@ async def get_reflection(request: ReflectRequest):
         if not request.message.strip():
             raise HTTPException(status_code=400, detail="Message cannot be empty")
 
-        # Convert context to format expected by llama_handler
+        # Convert context to dict format expected by llama_handler
         context_messages = []
         if request.context:
             for msg in request.context:
-                if msg.content.strip():  # Only add non-empty messages
+                if msg.content.strip():
                     context_messages.append({
                         "role": msg.role,
                         "content": msg.content
                     })
 
-        # Clean and validate global context
         global_ctx = (request.global_context or "").strip()
 
-        # Debug logging
-        print(f"📨 Received request:")
-        print(f"   Message: {request.message[:50]}{'...' if len(request.message) > 50 else ''}")
+        print("📨 Received request")
+        print(f"   Message: {request.message[:50]}")
         print(f"   Context messages: {len(context_messages)}")
-        print(f"   Global context: {len(global_ctx)} chars")
-        if global_ctx:
-            print(f"   Global context preview: {global_ctx[:100]}{'...' if len(global_ctx) > 100 else ''}")
+        print(f"   Global context length: {len(global_ctx)}")
 
-        response = reflect(request.message, context_messages, global_ctx)
+        response = reflect(
+            request.message,
+            context_messages,
+            global_ctx
+        )
 
         return ReflectResponse(
             response=response,
@@ -67,17 +79,22 @@ async def get_reflection(request: ReflectRequest):
                 "has_global_context": bool(global_ctx)
             }
         )
+
     except Exception as e:
         print(f"❌ Error in get_reflection: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error generating reflection: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error generating reflection: {str(e)}"
+        )
+
 
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
 
+
 @app.get("/api/v1/intents")
 async def get_intents():
-    """Get all available intents and their patterns."""
     intents = load_intents()
     return {
         "total_intents": len(intents.get("intents", [])),
@@ -91,22 +108,26 @@ async def get_intents():
         ]
     }
 
+
 @app.post("/api/v1/test-intent")
 async def test_intent(message: str):
-    """Test if a message matches any intent."""
     result = match_intent(message)
+
     if result:
         return {
             "matched": True,
             "intent_tag": result[0],
             "response": result[1]
         }
+
     return {
         "matched": False,
         "message": "No matching intent found. Will use LLM for response."
     }
 
+
 if __name__ == "__main__":
     import uvicorn
     from config import PORT
+
     uvicorn.run(app, host="0.0.0.0", port=PORT)
