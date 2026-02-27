@@ -87,16 +87,11 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false); // Loading state for messages
   const [globalContext, setGlobalContext] = useState<GlobalContextItem[]>([]);
-  const [isLoadingGlobalContext, setIsLoadingGlobalContext] = useState(false);
+  const [, setIsLoadingGlobalContext] = useState(false);
   const [guestLimitReached, setGuestLimitReached] = useState(false);
   const [guestStatsRefresh, setGuestStatsRefresh] = useState(0);
-  const {
-    theme,
-    isAuthenticated,
-    privacySettings,
-    userData,
-    globalContextVersion,
-  } = useStore();
+  const { theme, isAuthenticated, privacySettings, globalContextVersion } =
+    useStore();
 
   // Voice conversation state
   const [isVoiceConversation, setIsVoiceConversation] = useState(false);
@@ -176,7 +171,7 @@ function Home() {
     }
 
     setIsLoading(false);
-  }, [isAuthenticated, privacySettings.saveHistory]);
+  }, [isAuthenticated, privacySettings.saveHistory, activeChatId]);
 
   const loadFromLocalStorage = () => {
     const savedChats = localStorage.getItem("reflectify-chats");
@@ -185,11 +180,11 @@ function Home() {
     if (savedChats) {
       try {
         const parsedChats = JSON.parse(savedChats);
-        const chatsWithDates = parsedChats.map((chat: any) => ({
+        const chatsWithDates = parsedChats.map((chat: Chat) => ({
           ...chat,
           id: String(chat.id), // Ensure ID is string
           messages:
-            chat.messages?.map((msg: any) => ({
+            chat.messages?.map((msg: Message & Record<string, unknown>) => ({
               ...msg,
               timestamp: msg.timestamp ? new Date(msg.timestamp) : undefined,
             })) || [],
@@ -199,7 +194,7 @@ function Home() {
         // Set active chat - validate it exists in loaded chats
         if (
           savedActiveChatId &&
-          chatsWithDates.some((c: any) => c.id === savedActiveChatId)
+          chatsWithDates.some((c: Chat) => c.id === savedActiveChatId)
         ) {
           setActiveChatId(savedActiveChatId);
         } else if (chatsWithDates.length > 0) {
@@ -398,7 +393,6 @@ function Home() {
     }
 
     let currentActiveChatId = activeChatId;
-    let currentChat = chats.find(c => c.id === currentActiveChatId);
 
     // If no active chat, create one
     if (!currentActiveChatId) {
@@ -414,7 +408,6 @@ function Home() {
           setChats(prev => [newChat, ...prev]);
           setActiveChatId(newChat.id);
           currentActiveChatId = newChat.id;
-          currentChat = newChat;
         } catch (error) {
           console.error("Error creating conversation:", error);
           const newChat: Chat = {
@@ -425,7 +418,6 @@ function Home() {
           setChats(prev => [newChat, ...prev]);
           setActiveChatId(newChat.id);
           currentActiveChatId = newChat.id;
-          currentChat = newChat;
         }
       } else {
         const newChat: Chat = {
@@ -436,7 +428,6 @@ function Home() {
         setChats(prev => [newChat, ...prev]);
         setActiveChatId(newChat.id);
         currentActiveChatId = newChat.id;
-        currentChat = newChat;
       }
     }
 

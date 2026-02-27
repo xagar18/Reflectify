@@ -44,7 +44,7 @@ export default function Forgot() {
   return (
     <div className="flex min-h-screen bg-gray-950">
       {/* Left side - Branding (hidden on mobile) */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-12 lg:flex lg:w-1/2">
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-linear-to-br from-emerald-600 via-teal-600 to-cyan-700 p-12 lg:flex lg:w-1/2">
         {/* Background decoration */}
         <div className="absolute top-0 left-0 h-full w-full opacity-10">
           <div className="absolute top-20 left-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>

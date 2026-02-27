@@ -1,4 +1,4 @@
-# Vertex AI LLaMA-4 API Requirements
+# RunPod Qwen API Requirements
 requests
 python-dotenv
 fastapi

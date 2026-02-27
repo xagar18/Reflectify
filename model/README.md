@@ -1,6 +1,6 @@
 # Reflectify Model API
 
-Powered by **Vertex AI LLaMA-4 Scout 17B Instruct** on Google Cloud.
+Powered by **RunPod Qwen** on RunPod.
 
 ## Quick Start
 
@@ -159,9 +159,9 @@ Backend (Express) :4000
     ↓
 Model API (FastAPI) :8001  ← This server
     ↓
-Vertex AI (Google Cloud)
+RunPod
     ↓
-LLaMA-4 Scout 17B Instruct
+Qwen
 ```
 
 ---

@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from llama_handler import reflect
+from QwenHandler import reflect
 from intent_matcher import load_intents, match_intent
 
 app = FastAPI(
@@ -48,7 +48,7 @@ async def get_reflection(request: ReflectRequest):
         if not request.message.strip():
             raise HTTPException(status_code=400, detail="Message cannot be empty")
 
-        # Convert context to dict format expected by llama_handler
+        # Convert context to dict format expected by QwenHandler
         context_messages = []
         if request.context:
             for msg in request.context:

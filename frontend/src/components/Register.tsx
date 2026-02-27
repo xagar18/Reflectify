@@ -54,7 +54,7 @@ export default function SignUp() {
   const hasLower = /[a-z]/.test(password);
   const hasUpper = /[A-Z]/.test(password);
   const hasNumber = /\d/.test(password);
-  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-={}';:\\|,.<>?"]/.test(password);
   const noThreeConsecutive = !/(.)\1\1/.test(password);
   const isPasswordValid =
     password.length >= 8 &&
@@ -114,7 +114,7 @@ export default function SignUp() {
   return (
     <div className="flex min-h-screen overflow-hidden bg-gray-950">
       {/* Left side - Branding (hidden on mobile) */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-12 lg:flex lg:w-1/2">
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-linear-to-br from-emerald-600 via-teal-600 to-cyan-700 p-12 lg:flex lg:w-1/2">
         {/* Background decoration */}
         <div className="absolute top-0 left-0 h-full w-full opacity-10">
           <div className="absolute top-20 left-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>

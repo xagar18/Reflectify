@@ -19,6 +19,13 @@ export type Language =
   | "pt"
   | "ru";
 
+// User data interface
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 // Privacy settings
 export interface PrivacySettings {
   saveHistory: boolean;
@@ -28,7 +35,7 @@ export interface PrivacySettings {
 
 // Interface defining the structure of the authentication state
 interface AuthState {
-  userData: any | null; // Stores user data or null if not authenticated
+  userData: User | null; // Stores user data or null if not authenticated
   isAuthenticated: boolean; // Boolean flag for authentication status
   themeOption: ThemeOption; // User's theme preference (dark/light/system)
   theme: Theme; // Current applied theme
@@ -37,7 +44,7 @@ interface AuthState {
   isSettingsOpen: boolean; // Settings modal state
   globalContextVersion: number; // Version counter to trigger global context refresh
   // Function to set user data and mark as authenticated
-  auth: (data: any) => Promise<void>; // Function to set user data and mark as authenticated
+  auth: (data: User) => Promise<void>; // Function to set user data and mark as authenticated
   logout: () => void; // Function to log out user by clearing data and authentication flag
   getProfile: () => Promise<void>; // Function to fetch user profile from backend
   toggleTheme: () => void; // Function to toggle between dark and light theme
@@ -175,7 +182,7 @@ const useStore = create<AuthState>(set => ({
 
       // Debug log for user data (consider removing in production)
       console.log(response.data.user);
-    } catch (error) {
+    } catch {
       // User is not authenticated (guest) - this is expected, not an error
       console.log("User not authenticated, continuing as guest");
       set({ userData: null, isAuthenticated: false });

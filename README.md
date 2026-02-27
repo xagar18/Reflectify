@@ -48,74 +48,74 @@
 
 ### Frontend
 
-| Technology | Version | Purpose |
-|---|---|---|
-| **React** | 19.1.1 | UI library (latest with concurrent features) |
-| **TypeScript** | ~5.9.3 | Type-safe JavaScript |
-| **Vite** | 7.1.7 | Build tool & dev server (fast HMR) |
-| **Tailwind CSS** | 4.1.14 | Utility-first CSS framework (v4, Vite plugin) |
-| **Zustand** | 5.0.9 | Lightweight state management |
-| **React Router** | 7.9.4 | Client-side routing |
-| **Axios** | 1.12.2 | HTTP client for API calls |
-| **React Hook Form** | 7.65.0 | Form handling |
-| **Zod** | 4.1.12 | Schema validation |
-| **@react-oauth/google** | 0.13.4 | Google OAuth integration |
-| **Lucide React** | 0.546.0 | Icon library |
-| **React Hot Toast** | 2.6.0 | Toast notifications |
-| **React Spinners** | 0.17.0 | Loading spinners (BeatLoader) |
-| **React Icons** | 5.5.0 | Additional icon library |
-| **clsx** | 2.1.1 | Conditional className utility |
+| Technology              | Version | Purpose                                       |
+| ----------------------- | ------- | --------------------------------------------- |
+| **React**               | 19.1.1  | UI library (latest with concurrent features)  |
+| **TypeScript**          | ~5.9.3  | Type-safe JavaScript                          |
+| **Vite**                | 7.1.7   | Build tool & dev server (fast HMR)            |
+| **Tailwind CSS**        | 4.1.14  | Utility-first CSS framework (v4, Vite plugin) |
+| **Zustand**             | 5.0.9   | Lightweight state management                  |
+| **React Router**        | 7.9.4   | Client-side routing                           |
+| **Axios**               | 1.12.2  | HTTP client for API calls                     |
+| **React Hook Form**     | 7.65.0  | Form handling                                 |
+| **Zod**                 | 4.1.12  | Schema validation                             |
+| **@react-oauth/google** | 0.13.4  | Google OAuth integration                      |
+| **Lucide React**        | 0.546.0 | Icon library                                  |
+| **React Hot Toast**     | 2.6.0   | Toast notifications                           |
+| **React Spinners**      | 0.17.0  | Loading spinners (BeatLoader)                 |
+| **React Icons**         | 5.5.0   | Additional icon library                       |
+| **clsx**                | 2.1.1   | Conditional className utility                 |
 
 ### Backend
 
-| Technology | Version | Purpose |
-|---|---|---|
-| **Node.js** | — | JavaScript runtime |
-| **Express.js** | 5.1.0 | Web framework (v5, latest) |
-| **TypeScript** | — | Type-safe server code |
-| **Prisma ORM** | 7.3.0 | Database ORM with type-safe queries |
-| **PostgreSQL** | — | Relational database (hosted on Aiven Cloud) |
-| **JSON Web Tokens** | 9.0.2 | Authentication tokens |
-| **bcryptjs** | 3.0.2 | Password hashing (10 salt rounds) |
-| **Nodemailer** | 7.0.9 | Email service (SMTP via Gmail) |
-| **Google Auth Library** | 10.5.0 | Google OAuth token verification |
-| **Cookie Parser** | 1.4.7 | Cookie-based session management |
-| **CORS** | 2.8.5 | Cross-origin resource sharing |
-| **tsx** | 4.21.0 | TypeScript execution (no compile step) |
-| **Nodemon** | 3.1.10 | Hot-reload during development |
-| **pg** | 8.17.2 | PostgreSQL driver with SSL support |
-| **@prisma/adapter-pg** | 7.3.0 | Prisma PostgreSQL adapter |
+| Technology              | Version | Purpose                                     |
+| ----------------------- | ------- | ------------------------------------------- |
+| **Node.js**             | —       | JavaScript runtime                          |
+| **Express.js**          | 5.1.0   | Web framework (v5, latest)                  |
+| **TypeScript**          | —       | Type-safe server code                       |
+| **Prisma ORM**          | 7.3.0   | Database ORM with type-safe queries         |
+| **PostgreSQL**          | —       | Relational database (hosted on Aiven Cloud) |
+| **JSON Web Tokens**     | 9.0.2   | Authentication tokens                       |
+| **bcryptjs**            | 3.0.2   | Password hashing (10 salt rounds)           |
+| **Nodemailer**          | 7.0.9   | Email service (SMTP via Gmail)              |
+| **Google Auth Library** | 10.5.0  | Google OAuth token verification             |
+| **Cookie Parser**       | 1.4.7   | Cookie-based session management             |
+| **CORS**                | 2.8.5   | Cross-origin resource sharing               |
+| **tsx**                 | 4.21.0  | TypeScript execution (no compile step)      |
+| **Nodemon**             | 3.1.10  | Hot-reload during development               |
+| **pg**                  | 8.17.2  | PostgreSQL driver with SSL support          |
+| **@prisma/adapter-pg**  | 7.3.0   | Prisma PostgreSQL adapter                   |
 
 ### AI / Model Server
 
-| Technology | Version | Purpose |
-|---|---|---|
-| **Python** | 3.x | AI model server runtime |
-| **FastAPI** | latest | High-performance Python API framework |
-| **Uvicorn** | latest | ASGI server for FastAPI |
-| **Google Cloud Vertex AI** | — | LLaMA-4 model hosting & inference |
-| **LLaMA-4 Scout 17B Instruct** | — | Large Language Model for empathetic responses |
-| **Requests** | latest | HTTP client for Vertex AI API calls |
-| **python-dotenv** | latest | Environment variable management |
+| Technology                     | Version | Purpose                                       |
+| ------------------------------ | ------- | --------------------------------------------- |
+| **Python**                     | 3.x     | AI model server runtime                       |
+| **FastAPI**                    | latest  | High-performance Python API framework         |
+| **Uvicorn**                    | latest  | ASGI server for FastAPI                       |
+| **Google Cloud Vertex AI**     | —       | LLaMA-4 model hosting & inference             |
+| **LLaMA-4 Scout 17B Instruct** | —       | Large Language Model for empathetic responses |
+| **Requests**                   | latest  | HTTP client for Vertex AI API calls           |
+| **python-dotenv**              | latest  | Environment variable management               |
 
 ### Database & Cloud Services
 
-| Service | Purpose |
-|---|---|
-| **Aiven Cloud PostgreSQL** | Managed PostgreSQL database with SSL |
-| **Google Cloud Vertex AI** | LLM model deployment & inference |
-| **Google OAuth 2.0** | Social authentication |
-| **GitHub OAuth** | Social authentication |
-| **Gmail SMTP** | Transactional emails (verification, password reset) |
+| Service                    | Purpose                                             |
+| -------------------------- | --------------------------------------------------- |
+| **Aiven Cloud PostgreSQL** | Managed PostgreSQL database with SSL                |
+| **Google Cloud Vertex AI** | LLM model deployment & inference                    |
+| **Google OAuth 2.0**       | Social authentication                               |
+| **GitHub OAuth**           | Social authentication                               |
+| **Gmail SMTP**             | Transactional emails (verification, password reset) |
 
 ### Dev Tools
 
-| Tool | Purpose |
-|---|---|
-| **ESLint** | Code linting with React Hooks & Refresh plugins |
-| **Prettier** | Code formatting with Tailwind CSS plugin |
-| **TypeScript** | Static type checking across frontend & backend |
-| **Prisma Migrate** | Database migration management |
+| Tool               | Purpose                                         |
+| ------------------ | ----------------------------------------------- |
+| **ESLint**         | Code linting with React Hooks & Refresh plugins |
+| **Prettier**       | Code formatting with Tailwind CSS plugin        |
+| **TypeScript**     | Static type checking across frontend & backend  |
+| **Prisma Migrate** | Database migration management                   |
 
 ---
 
@@ -128,7 +128,7 @@
 │  Port: 5173 (dev)                                                   │
 └────────────────────┬───────────────────────┬────────────────────────┘
                      │  REST API (Axios)     │  REST API (Fetch)
-                     │  with Cookies         │  
+                     │  with Cookies         │
                      ▼                       ▼
 ┌────────────────────────────┐   ┌───────────────────────────────────┐
 │     BACKEND (Express.js)   │   │     MODEL SERVER (FastAPI)        │
@@ -167,6 +167,7 @@
 ## ✨ Features
 
 ### 1. AI-Powered Conversations
+
 - Empathetic, conversational AI responses powered by LLaMA-4 Scout 17B
 - Context-aware — maintains conversation history (last 10 messages)
 - Personalized — uses global context (user's name, preferences, occupation, etc.)
@@ -174,6 +175,7 @@
 - Practical advice — provides actionable suggestions, not just "breathing exercises"
 
 ### 2. Authentication System
+
 - **Email/Password Registration** with email verification via verification token
 - **Email/Password Login** with bcrypt password comparison
 - **Google OAuth 2.0** — one-click sign-in using `@react-oauth/google`
@@ -183,12 +185,14 @@
 - **Guest Access** — use the app without signing up (7 messages per 6-hour window)
 
 ### 3. Email Services
+
 - **Account Verification** — styled HTML email with verification link
 - **Password Reset** — styled HTML email with 48-hour expiry reset link
 - **SMTP via Gmail** — using Nodemailer with app-specific password
 - **Branded Templates** — dark-themed email templates with Reflectify branding and emerald accent colors
 
 ### 4. Conversation Management
+
 - **Create** new conversations (reflections)
 - **Auto-title Generation** — first 5 words of the first user message become the title
 - **Rename** conversations inline in the sidebar
@@ -198,6 +202,7 @@
 - **Persistent Storage** — authenticated users save to PostgreSQL; guests use localStorage
 
 ### 5. Global Context System
+
 - **Personal Context** — store key-value pairs about the user (name, age, occupation, etc.)
 - **Categories** — organize context by category (personal, professional, preferences, health)
 - **AI Integration** — context is formatted and injected into every LLM prompt as "User Info"
@@ -206,12 +211,14 @@
 - **Settings UI** — manage context items in the Settings → AI Context tab
 
 ### 6. Guest Rate Limiting
+
 - **7 messages per 6-hour window** for non-authenticated users
 - **LocalStorage tracking** — message timestamps stored client-side
 - **Dynamic Banner** — shows remaining messages, time until reset, and sign-in prompt
 - **Three states**: Normal (shows remaining count), Running Low (≤2 remaining, amber warning), Limit Reached (emerald pause message with countdown)
 
 ### 7. Theme System
+
 - **Dark Mode** — dark-gray (`bg-gray-950`) backgrounds with emerald accents
 - **Light Mode** — light-gray (`bg-gray-50`) backgrounds with emerald accents
 - **System Mode** — follows OS preference via `prefers-color-scheme` media query
@@ -219,6 +226,7 @@
 - **Applied everywhere** — every component has conditional `theme === "dark"` styling
 
 ### 8. Voice Input
+
 - **Speech-to-Text** using the Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`)
 - **Continuous mode** — keeps listening until manually stopped
 - **Interim results** — shows real-time transcription as user speaks
@@ -227,12 +235,14 @@
 - **Graceful fallback** — hides voice button if browser doesn't support it
 
 ### 9. File Attachments
+
 - **Multi-file picker** with accept filter for images, PDFs, Word docs, text files
 - **Image preview thumbnails** with remove button
 - **File metadata display** — name and formatted size (KB/MB)
 - **Contextual AI responses** — different replies for images vs. documents
 
 ### 10. Settings Panel
+
 - **4-tab modal** accessible from Profile Menu → Settings
 - **General** — theme selection (dark/light/system) with visual card pickers
 - **AI Context** — CRUD for global context items with key/value/category fields
@@ -241,6 +251,7 @@
 - **Keyboard shortcut** — Escape key closes the modal
 
 ### 11. Intent Matching (Pre-LLM)
+
 - **intents.json** — pre-defined patterns and responses for common inputs
 - **Three-pass matching**:
   1. **Exact match** — case-insensitive normalized comparison
@@ -250,6 +261,7 @@
 - **Bypass LLM** — returns instantly without hitting Vertex AI for matched intents
 
 ### 12. Sidebar & Navigation
+
 - **Collapsible sidebar** — 264px wide, toggleable with Panel icon
 - **Mobile responsive** — backdrop overlay on smaller screens
 - **Chat search** — filter conversations by title
@@ -258,6 +270,7 @@
 - **Glass-morphism** — `backdrop-blur-md` with semi-transparent background
 
 ### 13. Production Deployment
+
 - **Static file serving** — Express serves the Vite-built frontend in production
 - **Catch-all route** — SPA fallback for client-side routing
 - **Combined build script** — single `npm run build` at the root installs all deps and builds
@@ -368,8 +381,8 @@ Reflectify/
 │   │                               #   /api/v1/test-intent endpoints, CORS middleware
 │   ├── config.py                   # Configuration: Vertex AI settings, system prompt,
 │   │                               #   model parameters, port
-│   ├── llama_handler.py            # LLaMA-4 handler: prompt building with special tokens,
-│   │                               #   Vertex AI REST API calls, response cleaning
+│   ├── QwenHandler.py            # Qwen handler: prompt building with special tokens,
+│   │                               #   RunPod REST API calls, response cleaning
 │   ├── intent_matcher.py           # Intent matching: 3-pass matching (exact, fuzzy, critical),
 │   │                               #   loads intents.json, random response selection
 │   ├── remove_duplicates.py        # Utility: remove duplicate intents from intents.json
@@ -451,9 +464,9 @@ The application uses **PostgreSQL** with **Prisma ORM**. The database is hosted 
 
 ### Enums
 
-| Enum | Values | Used In |
-|---|---|---|
-| `MessageRole` | `user`, `assistant` | `Message.role` |
+| Enum                 | Values               | Used In               |
+| -------------------- | -------------------- | --------------------- |
+| `MessageRole`        | `user`, `assistant`  | `Message.role`        |
 | `ConversationStatus` | `active`, `archived` | `Conversation.status` |
 
 ### Key Relationships
@@ -464,14 +477,14 @@ The application uses **PostgreSQL** with **Prisma ORM**. The database is hosted 
 
 ### Migrations History
 
-| Migration | Description |
-|---|---|
-| `20251016171117_init` | Initial schema — User model |
-| `20251016180800_phone_removed` | Removed phone field from User |
-| `20251016181023_phone_added` | Re-added phone as optional field |
-| `20251017153014_changed_pass_reset_exp` | Changed password reset expiry field type |
+| Migration                               | Description                                   |
+| --------------------------------------- | --------------------------------------------- |
+| `20251016171117_init`                   | Initial schema — User model                   |
+| `20251016180800_phone_removed`          | Removed phone field from User                 |
+| `20251016181023_phone_added`            | Re-added phone as optional field              |
+| `20251017153014_changed_pass_reset_exp` | Changed password reset expiry field type      |
 | `20260125201311_add_chat_conversations` | Added Conversation, Message models with enums |
-| `20260128124333_add_global_context` | Added GlobalContext model |
+| `20260128124333_add_global_context`     | Added GlobalContext model                     |
 
 ---
 
@@ -481,48 +494,48 @@ The application uses **PostgreSQL** with **Prisma ORM**. The database is hosted 
 
 ### Authentication Routes (`/api/v1/user`)
 
-| Method | Endpoint | Middleware | Description |
-|---|---|---|---|
-| `POST` | `/api/v1/user/register` | `isLoggedIn` | Register new user (name, email, password). Sends verification email. |
-| `POST` | `/api/v1/user/login` | `isLoggedIn` | Login with email/password. Returns JWT cookie. Checks if already logged in. |
-| `POST` | `/api/v1/user/google-auth` | — | Google OAuth login/register. Accepts Google access token. |
-| `GET` | `/auth/github` | — | Redirects to GitHub OAuth authorization page. |
-| `GET` | `/auth/github/callback` | — | GitHub OAuth callback. Exchanges code for token, creates/finds user, sets cookie, redirects to frontend. |
-| `GET` | `/api/v1/user/profile` | `isLoggedIn` | Get authenticated user's profile (id, name, email, phone, isVerified, timestamps). |
-| `POST` | `/api/v1/user/logout` | — | Clear auth cookie and logout. |
-| `POST` | `/api/v1/user/frgt` | — | Send password reset email with 48-hour expiry token. |
-| `POST` | `/api/v1/user/res/:token` | — | Reset password using token. Validates token & expiry, hashes new password. |
-| `GET` | `/api/v1/user/verify/:token` | — | Verify email using verification token. Sets `isVerified = true`. |
+| Method | Endpoint                     | Middleware   | Description                                                                                              |
+| ------ | ---------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
+| `POST` | `/api/v1/user/register`      | `isLoggedIn` | Register new user (name, email, password). Sends verification email.                                     |
+| `POST` | `/api/v1/user/login`         | `isLoggedIn` | Login with email/password. Returns JWT cookie. Checks if already logged in.                              |
+| `POST` | `/api/v1/user/google-auth`   | —            | Google OAuth login/register. Accepts Google access token.                                                |
+| `GET`  | `/auth/github`               | —            | Redirects to GitHub OAuth authorization page.                                                            |
+| `GET`  | `/auth/github/callback`      | —            | GitHub OAuth callback. Exchanges code for token, creates/finds user, sets cookie, redirects to frontend. |
+| `GET`  | `/api/v1/user/profile`       | `isLoggedIn` | Get authenticated user's profile (id, name, email, phone, isVerified, timestamps).                       |
+| `POST` | `/api/v1/user/logout`        | —            | Clear auth cookie and logout.                                                                            |
+| `POST` | `/api/v1/user/frgt`          | —            | Send password reset email with 48-hour expiry token.                                                     |
+| `POST` | `/api/v1/user/res/:token`    | —            | Reset password using token. Validates token & expiry, hashes new password.                               |
+| `GET`  | `/api/v1/user/verify/:token` | —            | Verify email using verification token. Sets `isVerified = true`.                                         |
 
 ### Chat Routes (`/api/v1/chat`) — All require `authenticateToken`
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/conversations` | Create a new conversation (optional title, defaults to "New Reflection"). |
-| `GET` | `/conversations` | Get all conversations for the user (titles only, no messages — for fast sidebar loading). |
-| `GET` | `/conversations/:id` | Get a single conversation with all messages (ordered by `createdAt` ascending). |
-| `PUT` | `/conversations/:id` | Update conversation title. |
-| `DELETE` | `/conversations/:id` | Delete conversation (cascade deletes all messages). |
-| `DELETE` | `/conversations` | Delete ALL conversations for the user. |
-| `POST` | `/conversations/:conversationId/messages` | Add a single message to a conversation. |
-| `POST` | `/conversations/:conversationId/messages/bulk` | Add multiple messages at once (user + assistant pair). Auto-updates title from first user message. |
+| Method   | Endpoint                                       | Description                                                                                        |
+| -------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `POST`   | `/conversations`                               | Create a new conversation (optional title, defaults to "New Reflection").                          |
+| `GET`    | `/conversations`                               | Get all conversations for the user (titles only, no messages — for fast sidebar loading).          |
+| `GET`    | `/conversations/:id`                           | Get a single conversation with all messages (ordered by `createdAt` ascending).                    |
+| `PUT`    | `/conversations/:id`                           | Update conversation title.                                                                         |
+| `DELETE` | `/conversations/:id`                           | Delete conversation (cascade deletes all messages).                                                |
+| `DELETE` | `/conversations`                               | Delete ALL conversations for the user.                                                             |
+| `POST`   | `/conversations/:conversationId/messages`      | Add a single message to a conversation.                                                            |
+| `POST`   | `/conversations/:conversationId/messages/bulk` | Add multiple messages at once (user + assistant pair). Auto-updates title from first user message. |
 
 ### Global Context Routes (`/api/v1/global-context`) — All require `authenticateToken`
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/` | Get all active global context items for the user (ordered by `updatedAt` desc). |
-| `POST` | `/` | Add or update (upsert) a global context item. Requires `key` (alphanumeric, underscore, dash) and `value`. Optional `category`. |
-| `DELETE` | `/:key` | Soft-delete a global context item (sets `isActive = false`). |
+| Method   | Endpoint | Description                                                                                                                     |
+| -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`    | `/`      | Get all active global context items for the user (ordered by `updatedAt` desc).                                                 |
+| `POST`   | `/`      | Add or update (upsert) a global context item. Requires `key` (alphanumeric, underscore, dash) and `value`. Optional `category`. |
+| `DELETE` | `/:key`  | Soft-delete a global context item (sets `isActive = false`).                                                                    |
 
 ### Model Server Routes (`http://localhost:8001`)
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/v1/reflect` | Generate an AI reflection response. Accepts `message`, optional `context[]`, optional `global_context` string. |
-| `GET` | `/health` | Health check endpoint. Returns `{"status": "healthy"}`. |
-| `GET` | `/api/v1/intents` | List all loaded intents with patterns and response counts. |
-| `POST` | `/api/v1/test-intent?message=...` | Test if a message matches any intent pattern. |
+| Method | Endpoint                          | Description                                                                                                    |
+| ------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `POST` | `/api/v1/reflect`                 | Generate an AI reflection response. Accepts `message`, optional `context[]`, optional `global_context` string. |
+| `GET`  | `/health`                         | Health check endpoint. Returns `{"status": "healthy"}`.                                                        |
+| `GET`  | `/api/v1/intents`                 | List all loaded intents with patterns and response counts.                                                     |
+| `POST` | `/api/v1/test-intent?message=...` | Test if a message matches any intent pattern.                                                                  |
 
 ---
 
@@ -530,38 +543,38 @@ The application uses **PostgreSQL** with **Prisma ORM**. The database is hosted 
 
 ### Pages
 
-| Component | Route | Description |
-|---|---|---|
-| `Home` | `/` | Main application page. Contains sidebar, chat area, message input, welcome screen, guest banner, and settings modal. Manages all chat state, lazy loading, and AI communication. |
-| `OAuthSuccess` | `/oauth-success` | OAuth callback handler. Fetches user profile using the cookie set by backend, then redirects to home. Shows loading spinner during fetch. |
+| Component      | Route            | Description                                                                                                                                                                      |
+| -------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Home`         | `/`              | Main application page. Contains sidebar, chat area, message input, welcome screen, guest banner, and settings modal. Manages all chat state, lazy loading, and AI communication. |
+| `OAuthSuccess` | `/oauth-success` | OAuth callback handler. Fetches user profile using the cookie set by backend, then redirects to home. Shows loading spinner during fetch.                                        |
 
 ### Authentication Components
 
-| Component | Route | Key Features |
-|---|---|---|
-| `Login` | `/login` | Split-layout design (branding left, form right). Email/password login, Google OAuth, GitHub OAuth, "Continue as guest" option. Gmail-only email validation. |
-| `Register` | `/register` | Split-layout design. Name, email, password registration. Real-time **password strength indicator** with 6 criteria (≥8 chars, lowercase, uppercase, number, special char, no 3 consecutive identical chars). Google/GitHub OAuth. |
-| `Forgot` | `/forgot-password` | Split-layout design. Email input to send password reset link. |
-| `ResetPassword` | `/reset-password/:token` | Split-layout design. New password + confirm password with strength validation. Uses URL token parameter. |
-| `VerifyAccount` | `/verify-account/:token` | Minimal centered layout. One-click "Verify Account" button. Uses URL token parameter. |
+| Component       | Route                    | Key Features                                                                                                                                                                                                                      |
+| --------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Login`         | `/login`                 | Split-layout design (branding left, form right). Email/password login, Google OAuth, GitHub OAuth, "Continue as guest" option. Gmail-only email validation.                                                                       |
+| `Register`      | `/register`              | Split-layout design. Name, email, password registration. Real-time **password strength indicator** with 6 criteria (≥8 chars, lowercase, uppercase, number, special char, no 3 consecutive identical chars). Google/GitHub OAuth. |
+| `Forgot`        | `/forgot-password`       | Split-layout design. Email input to send password reset link.                                                                                                                                                                     |
+| `ResetPassword` | `/reset-password/:token` | Split-layout design. New password + confirm password with strength validation. Uses URL token parameter.                                                                                                                          |
+| `VerifyAccount` | `/verify-account/:token` | Minimal centered layout. One-click "Verify Account" button. Uses URL token parameter.                                                                                                                                             |
 
 ### Chat Components
 
-| Component | Purpose | Key Features |
-|---|---|---|
-| `ChatArea` | Message display area | Auto-scroll to bottom; loading spinner; empty state; image attachment rendering with click-to-open; file attachment display; animated typing indicator (3 bouncing dots); dark/light theme styling. |
+| Component      | Purpose              | Key Features                                                                                                                                                                                                                                               |
+| -------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ChatArea`     | Message display area | Auto-scroll to bottom; loading spinner; empty state; image attachment rendering with click-to-open; file attachment display; animated typing indicator (3 bouncing dots); dark/light theme styling.                                                        |
 | `MessageInput` | Message composer bar | Text input with Enter-to-send; multi-file picker (images, PDFs, docs); image preview thumbnails; voice input via Web Speech API with continuous mode, interim results, auto-restart, and animated pulse indicator; send button disabled when empty/typing. |
-| `Sidebar` | Navigation sidebar | 264px collapsible sidebar; glass-morphism (`backdrop-blur-md`); "+ New Reflection" button; search filter for chats; collapsible "Your chats" section; mobile backdrop overlay; `ProfileMenu` at bottom for authenticated users. |
-| `ChatRow` | Sidebar chat item | Click to select; inline rename (auto-focus input); hover-reveal Pencil/Trash icons; active state with emerald highlight. |
-| `ChatItem` | Legacy chat item | Three-dot context menu on hover (Rename, Pin, Delete). |
+| `Sidebar`      | Navigation sidebar   | 264px collapsible sidebar; glass-morphism (`backdrop-blur-md`); "+ New Reflection" button; search filter for chats; collapsible "Your chats" section; mobile backdrop overlay; `ProfileMenu` at bottom for authenticated users.                            |
+| `ChatRow`      | Sidebar chat item    | Click to select; inline rename (auto-focus input); hover-reveal Pencil/Trash icons; active state with emerald highlight.                                                                                                                                   |
+| `ChatItem`     | Legacy chat item     | Three-dot context menu on hover (Rename, Pin, Delete).                                                                                                                                                                                                     |
 
 ### UI Components
 
-| Component | Purpose | Key Features |
-|---|---|---|
-| `Settings` | Settings modal (4 tabs) | **General**: theme picker (Light/Dark/System). **AI Context**: CRUD for key-value context items. **Privacy**: toggles + "Clear All Data" danger zone. **Language**: 10-language grid selector. Escape-to-close. |
-| `ProfileMenu` | User avatar dropdown | Circular avatar with user's initial; opens upward; Settings and Logout menu items; click-outside-to-close. |
-| `GuestLimitBanner` | Guest rate limit display | Three states: normal (shows count), running low (amber warning), limit reached (emerald pause with countdown). Auto-refreshes every 60 seconds. |
+| Component          | Purpose                  | Key Features                                                                                                                                                                                                    |
+| ------------------ | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Settings`         | Settings modal (4 tabs)  | **General**: theme picker (Light/Dark/System). **AI Context**: CRUD for key-value context items. **Privacy**: toggles + "Clear All Data" danger zone. **Language**: 10-language grid selector. Escape-to-close. |
+| `ProfileMenu`      | User avatar dropdown     | Circular avatar with user's initial; opens upward; Settings and Logout menu items; click-outside-to-close.                                                                                                      |
+| `GuestLimitBanner` | Guest rate limit display | Three states: normal (shows count), running low (amber warning), limit reached (emerald pause with countdown). Auto-refreshes every 60 seconds.                                                                 |
 
 ---
 
@@ -604,12 +617,12 @@ User Info:
 
 ### Model Parameters
 
-| Parameter | Default | Description |
-|---|---|---|
-| `MAX_TOKENS` | 512 | Maximum response length |
-| `TEMPERATURE` | 0.7 | Creativity/randomness (0=deterministic, 1=creative) |
-| `TOP_P` | 0.9 | Nucleus sampling threshold |
-| `CONTEXT_MESSAGE_LIMIT` | 10 | Max conversation history messages sent to the model |
+| Parameter               | Default | Description                                         |
+| ----------------------- | ------- | --------------------------------------------------- |
+| `MAX_TOKENS`            | 512     | Maximum response length                             |
+| `TEMPERATURE`           | 0.7     | Creativity/randomness (0=deterministic, 1=creative) |
+| `TOP_P`                 | 0.9     | Nucleus sampling threshold                          |
+| `CONTEXT_MESSAGE_LIMIT` | 10      | Max conversation history messages sent to the model |
 
 ### Intent Matching Pipeline
 
@@ -623,7 +636,7 @@ If any match is found, the pre-defined response is returned **instantly** withou
 
 ### Response Cleaning
 
-The `llama_handler.py` performs extensive response post-processing:
+The `QwenHandler.py` performs extensive response post-processing:
 
 - Cuts off at any "user" turn marker leaked into the response
 - Removes all LLaMA special tokens (`<|eot_id|>`, `<|end_of_text|>`, etc.)
@@ -718,10 +731,10 @@ User enters email → POST /api/v1/user/frgt
 
 ### Middleware
 
-| Middleware | Behavior |
-|---|---|
-| `isLoggedIn` | **Optional auth** — if JWT cookie exists, verifies and attaches `req.user`. If not, sets `req.user = null` and continues. Never returns 401. |
-| `authenticateToken` | **Required auth** — if JWT cookie exists, verifies and attaches `req.user`. If not, returns 401 Unauthorized. |
+| Middleware          | Behavior                                                                                                                                     |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isLoggedIn`        | **Optional auth** — if JWT cookie exists, verifies and attaches `req.user`. If not, sets `req.user = null` and continues. Never returns 401. |
+| `authenticateToken` | **Required auth** — if JWT cookie exists, verifies and attaches `req.user`. If not, returns 401 Unauthorized.                                |
 
 ---
 
@@ -733,42 +746,42 @@ The application uses **Zustand** for global state management. The store is defin
 
 ```typescript
 interface AuthState {
-  userData: any | null;           // Current user data (id, name, email)
-  isAuthenticated: boolean;       // Authentication flag
-  themeOption: ThemeOption;        // User's preference: "dark" | "light" | "system"
-  theme: Theme;                   // Applied theme: "dark" | "light"
-  language: Language;             // Current language code (en, es, fr, etc.)
+  userData: any | null; // Current user data (id, name, email)
+  isAuthenticated: boolean; // Authentication flag
+  themeOption: ThemeOption; // User's preference: "dark" | "light" | "system"
+  theme: Theme; // Applied theme: "dark" | "light"
+  language: Language; // Current language code (en, es, fr, etc.)
   privacySettings: PrivacySettings; // { saveHistory, shareAnalytics, showOnlineStatus }
-  isSettingsOpen: boolean;        // Settings modal visibility
-  globalContextVersion: number;   // Counter to trigger global context refresh
+  isSettingsOpen: boolean; // Settings modal visibility
+  globalContextVersion: number; // Counter to trigger global context refresh
 }
 ```
 
 ### Store Actions
 
-| Action | Description |
-|---|---|
-| `auth(data)` | Set user data, mark authenticated, auto-add user name to global context |
-| `getProfile()` | Fetch user profile from backend (`GET /api/v1/user/profile`), update state |
-| `logout()` | Call logout API, clear state, clear localStorage |
-| `toggleTheme()` | Toggle between dark and light |
-| `setThemeOption(option)` | Set theme to dark/light/system, persist to localStorage |
-| `setLanguage(language)` | Set language, persist to localStorage |
-| `setPrivacySettings(settings)` | Partial update privacy settings, persist to localStorage |
-| `openSettings()` / `closeSettings()` | Toggle settings modal; closing also bumps `globalContextVersion` |
-| `refreshGlobalContext()` | Increment `globalContextVersion` to trigger re-fetch |
+| Action                               | Description                                                                |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| `auth(data)`                         | Set user data, mark authenticated, auto-add user name to global context    |
+| `getProfile()`                       | Fetch user profile from backend (`GET /api/v1/user/profile`), update state |
+| `logout()`                           | Call logout API, clear state, clear localStorage                           |
+| `toggleTheme()`                      | Toggle between dark and light                                              |
+| `setThemeOption(option)`             | Set theme to dark/light/system, persist to localStorage                    |
+| `setLanguage(language)`              | Set language, persist to localStorage                                      |
+| `setPrivacySettings(settings)`       | Partial update privacy settings, persist to localStorage                   |
+| `openSettings()` / `closeSettings()` | Toggle settings modal; closing also bumps `globalContextVersion`           |
+| `refreshGlobalContext()`             | Increment `globalContextVersion` to trigger re-fetch                       |
 
 ### Persisted State (localStorage)
 
-| Key | Value |
-|---|---|
-| `reflectify-theme-option` | `"dark"` / `"light"` / `"system"` |
-| `reflectify-language` | Language code (e.g., `"en"`) |
-| `reflectify-privacy` | JSON privacy settings object |
-| `reflectify-chats` | JSON array of chats (guest users only) |
-| `reflectify-active-chat-id` | Active chat ID string |
-| `reflectify-sidebar-open` | Boolean sidebar state |
-| `reflectify-guest-usage` | Guest rate limit timestamps |
+| Key                         | Value                                  |
+| --------------------------- | -------------------------------------- |
+| `reflectify-theme-option`   | `"dark"` / `"light"` / `"system"`      |
+| `reflectify-language`       | Language code (e.g., `"en"`)           |
+| `reflectify-privacy`        | JSON privacy settings object           |
+| `reflectify-chats`          | JSON array of chats (guest users only) |
+| `reflectify-active-chat-id` | Active chat ID string                  |
+| `reflectify-sidebar-open`   | Boolean sidebar state                  |
+| `reflectify-guest-usage`    | Guest rate limit timestamps            |
 
 ---
 
@@ -918,18 +931,21 @@ gcloud config set project YOUR_PROJECT_ID
 ### Development Mode (3 terminals)
 
 **Terminal 1 — Backend** (Port 4000):
+
 ```bash
 cd backend
 npm run dev
 ```
 
 **Terminal 2 — Frontend** (Port 5173):
+
 ```bash
 cd frontend
 npm run dev
 ```
 
 **Terminal 3 — Model Server** (Port 8001):
+
 ```bash
 cd model
 source venv/bin/activate
@@ -950,6 +966,7 @@ npm start
 ```
 
 This runs the Express server which serves the built frontend as static files. In production mode:
+
 - Express serves `frontend/dist/` as static assets
 - All non-API routes fall back to `index.html` for client-side routing
 - Cookies use `secure: true` and `sameSite: "none"`
@@ -978,6 +995,7 @@ This runs the Express server which serves the built frontend as static files. In
 ## 📸 Screenshots / UI Flow
 
 ### Authentication Flow
+
 ```
 Landing (Welcome Screen) → Sign Up → Email Verification → Sign In → Home
                           ↗ Google OAuth ↘
@@ -986,6 +1004,7 @@ Landing (Welcome Screen) → Sign Up → Email Verification → Sign In → Home
 ```
 
 ### Main App Flow
+
 ```
 Home Page
 ├── Welcome Screen (no chats)
@@ -1027,6 +1046,7 @@ Home Page
 ## 👨‍💻 Author
 
 Built as a Full-Stack Web Application project demonstrating:
+
 - Modern React 19 with TypeScript
 - Express.js 5 REST API with Prisma ORM
 - AI/ML integration with Google Cloud Vertex AI and LLaMA-4

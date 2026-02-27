@@ -42,7 +42,7 @@ function GuestLimitBanner({
       >
         <div className="flex flex-col items-center gap-4 text-center">
           <div
-            className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${
               isDark ? "bg-emerald-900/50" : "bg-emerald-100"
             }`}
           >
@@ -93,7 +93,7 @@ function GuestLimitBanner({
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex items-center gap-3">
             <Sparkles
-              className={`h-5 w-5 flex-shrink-0 ${isDark ? "text-amber-400" : "text-amber-600"}`}
+              className={`h-5 w-5 shrink-0 ${isDark ? "text-amber-400" : "text-amber-600"}`}
             />
             <p
               className={`text-sm ${isDark ? "text-amber-200" : "text-amber-800"}`}
@@ -128,7 +128,7 @@ function GuestLimitBanner({
       <div className="flex flex-col items-center gap-3 text-center">
         <div className="flex items-center gap-2 text-sm">
           <Leaf
-            className={`h-4 w-4 flex-shrink-0 ${isDark ? "text-emerald-500" : "text-emerald-600"}`}
+            className={`h-4 w-4 shrink-0 ${isDark ? "text-emerald-500" : "text-emerald-600"}`}
           />
           <span className={isDark ? "text-gray-400" : "text-gray-600"}>
             <strong className={isDark ? "text-gray-200" : "text-gray-700"}>

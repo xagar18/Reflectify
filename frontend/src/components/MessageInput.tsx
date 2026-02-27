@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useStore from "../zustand/store";
 
 export type AttachedFile = {
@@ -79,116 +79,119 @@ function MessageInput({
 
   /** Create a fresh SpeechRecognition instance, wire handlers, and start it.
    *  Returns true if started successfully. */
-  const startRecognition = (forVoiceConversation: boolean): boolean => {
-    const SpeechRecognitionAPI =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) return false;
+  const startRecognition = useCallback(
+    (forVoiceConversation: boolean): boolean => {
+      const SpeechRecognitionAPI =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognitionAPI) return false;
 
-    // Destroy any lingering previous instance
-    destroyRecognition();
-    if (autoSendTimeoutRef.current) {
-      clearTimeout(autoSendTimeoutRef.current);
-      autoSendTimeoutRef.current = null;
-    }
-
-    const session = ++sessionIdRef.current;
-    finalTranscriptRef.current = forVoiceConversation ? "" : input;
-
-    const recognition = new SpeechRecognitionAPI();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = "en-US";
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      if (session !== sessionIdRef.current) return; // stale session
-
-      let newFinal = "";
-      let interimPart = "";
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          newFinal += result[0].transcript;
-        } else {
-          interimPart += result[0].transcript;
-        }
-      }
-
-      if (newFinal) {
-        finalTranscriptRef.current += newFinal;
-
-        // Voice conversation: auto-send after 1.8s of finalized silence
-        if (voiceConversationRef.current) {
-          if (autoSendTimeoutRef.current)
-            clearTimeout(autoSendTimeoutRef.current);
-          autoSendTimeoutRef.current = setTimeout(() => {
-            if (session !== sessionIdRef.current) return;
-            const pendingText = finalTranscriptRef.current.trim();
-            if (pendingText && voiceConversationRef.current) {
-              destroyRecognition();
-              finalTranscriptRef.current = "";
-              setInput("");
-              setIsListening(false);
-              onSendRef.current(pendingText);
-            }
-          }, 1800);
-        }
-      }
-
-      setInput(finalTranscriptRef.current + interimPart);
-    };
-
-    recognition.onend = () => {
-      if (session !== sessionIdRef.current) return; // stale session
-
-      if (voiceConversationRef.current) {
-        // In voice conversation, if we have accumulated text, send it
-        const pendingText = finalTranscriptRef.current.trim();
-        if (pendingText) {
-          if (autoSendTimeoutRef.current)
-            clearTimeout(autoSendTimeoutRef.current);
-          destroyRecognition();
-          finalTranscriptRef.current = "";
-          setInput("");
-          setIsListening(false);
-          onSendRef.current(pendingText);
-        } else {
-          // No text captured yet — create a fresh instance and keep listening
-          setTimeout(() => {
-            if (
-              session === sessionIdRef.current &&
-              voiceConversationRef.current
-            ) {
-              startRecognition(true);
-            }
-          }, 300);
-        }
-      } else {
-        // Normal speech-to-text ended — do NOT auto-restart, the user will click again
-        setIsListening(false);
-      }
-    };
-
-    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
-      if (session !== sessionIdRef.current) return;
-      if (e.error === "no-speech" || e.error === "aborted") return;
-      console.warn("Speech recognition error:", e.error);
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    try {
-      recognition.start();
-      setIsListening(true);
-      return true;
-    } catch {
+      // Destroy any lingering previous instance
       destroyRecognition();
-      setIsListening(false);
-      return false;
-    }
-  };
+      if (autoSendTimeoutRef.current) {
+        clearTimeout(autoSendTimeoutRef.current);
+        autoSendTimeoutRef.current = null;
+      }
+
+      const session = ++sessionIdRef.current;
+      finalTranscriptRef.current = forVoiceConversation ? "" : input;
+
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        if (session !== sessionIdRef.current) return; // stale session
+
+        let newFinal = "";
+        let interimPart = "";
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          if (result.isFinal) {
+            newFinal += result[0].transcript;
+          } else {
+            interimPart += result[0].transcript;
+          }
+        }
+
+        if (newFinal) {
+          finalTranscriptRef.current += newFinal;
+
+          // Voice conversation: auto-send after 1.8s of finalized silence
+          if (voiceConversationRef.current) {
+            if (autoSendTimeoutRef.current)
+              clearTimeout(autoSendTimeoutRef.current);
+            autoSendTimeoutRef.current = setTimeout(() => {
+              if (session !== sessionIdRef.current) return;
+              const pendingText = finalTranscriptRef.current.trim();
+              if (pendingText && voiceConversationRef.current) {
+                destroyRecognition();
+                finalTranscriptRef.current = "";
+                setInput("");
+                setIsListening(false);
+                onSendRef.current(pendingText);
+              }
+            }, 1800);
+          }
+        }
+
+        setInput(finalTranscriptRef.current + interimPart);
+      };
+
+      recognition.onend = () => {
+        if (session !== sessionIdRef.current) return; // stale session
+
+        if (voiceConversationRef.current) {
+          // In voice conversation, if we have accumulated text, send it
+          const pendingText = finalTranscriptRef.current.trim();
+          if (pendingText) {
+            if (autoSendTimeoutRef.current)
+              clearTimeout(autoSendTimeoutRef.current);
+            destroyRecognition();
+            finalTranscriptRef.current = "";
+            setInput("");
+            setIsListening(false);
+            onSendRef.current(pendingText);
+          } else {
+            // No text captured yet — create a fresh instance and keep listening
+            setTimeout(() => {
+              if (
+                session === sessionIdRef.current &&
+                voiceConversationRef.current
+              ) {
+                startRecognition(true);
+              }
+            }, 300);
+          }
+        } else {
+          // Normal speech-to-text ended — do NOT auto-restart, the user will click again
+          setIsListening(false);
+        }
+      };
+
+      recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+        if (session !== sessionIdRef.current) return;
+        if (e.error === "no-speech" || e.error === "aborted") return;
+        console.warn("Speech recognition error:", e.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+
+      try {
+        recognition.start();
+        setIsListening(true);
+        return true;
+      } catch {
+        destroyRecognition();
+        setIsListening(false);
+        return false;
+      }
+    },
+    [input, setIsListening, setInput]
+  );
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -203,7 +206,7 @@ function MessageInput({
     ) {
       startRecognition(true);
     }
-  }, [triggerListening]);
+  }, [triggerListening, startRecognition]);
 
   // Stop voice recognition cleanly
   const stopListening = () => {

@@ -1,6 +1,9 @@
 import { Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { globalContextService } from "../services/globalContextService";
+import {
+  globalContextService,
+  type GlobalContextItem,
+} from "../services/globalContextService";
 import type { Language, PrivacySettings, ThemeOption } from "../zustand/store";
 import useStore from "../zustand/store";
 
@@ -61,7 +64,7 @@ function Settings() {
 
       {/* Modal */}
       <div
-        className={`relative z-10 flex h-[90vh] max-h-[700px] w-full max-w-2xl flex-col overflow-hidden rounded-2xl shadow-xl sm:h-[85vh] sm:max-h-[650px] ${
+        className={`relative z-10 flex h-[90vh] max-h-175 w-full max-w-2xl flex-col overflow-hidden rounded-2xl shadow-xl sm:h-[85vh] sm:max-h-162.5 ${
           theme === "dark"
             ? "border border-gray-800 bg-gray-900 text-white"
             : "border border-gray-200 bg-white text-gray-900"
@@ -356,7 +359,7 @@ function LanguageSettings({
 
 /* ========== Context Settings ========== */
 function ContextSettings({ theme }: { theme: "dark" | "light" }) {
-  const [contextItems, setContextItems] = useState<any[]>([]);
+  const [contextItems, setContextItems] = useState<GlobalContextItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");

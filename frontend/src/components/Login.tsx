@@ -83,11 +83,14 @@ export default function SignIn() {
       console.log("output", response.data.user); // Log user data for debugging
       await auth(response.data.user); // Update global state with logged-in user data
       navigate("/"); // Redirect to home page after successful login
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login failed", error); // Log error for debugging
-      toast.error(
-        error.response?.data?.message || "Login failed. Please try again."
-      ); // Show error notification
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message
+          : "Login failed. Please try again.";
+      toast.error(errorMessage ?? "Login failed. Please try again."); // Show error notification
     } finally {
       setLoading(false); // Reset loading state regardless of success or failure
     }
@@ -96,7 +99,7 @@ export default function SignIn() {
   return (
     <div className="flex min-h-screen bg-gray-950">
       {/* Left side - Branding (hidden on mobile) */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-12 lg:flex lg:w-1/2">
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-linear-to-br from-emerald-600 via-teal-600 to-cyan-700 p-12 lg:flex lg:w-1/2">
         {/* Background decoration */}
         <div className="absolute top-0 left-0 h-full w-full opacity-10">
           <div className="absolute top-20 left-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>

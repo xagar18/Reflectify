@@ -84,8 +84,8 @@ function Sidebar({
             onClick={onNewChat}
             className={`w-full rounded-xl px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] ${
               theme === "dark"
-                ? "bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-600/25 hover:shadow-emerald-500/30"
-                : "bg-gradient-to-r from-emerald-500 to-teal-500 shadow-emerald-500/25 hover:shadow-emerald-400/30"
+                ? "bg-linear-to-r from-emerald-600 to-teal-600 shadow-emerald-600/25 hover:shadow-emerald-500/30"
+                : "bg-linear-to-r from-emerald-500 to-teal-500 shadow-emerald-500/25 hover:shadow-emerald-400/30"
             }`}
           >
             + New Reflection
